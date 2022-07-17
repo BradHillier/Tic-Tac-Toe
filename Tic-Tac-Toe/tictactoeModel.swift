@@ -40,6 +40,10 @@ struct TicTacToe<CellContent> {
         return nil
     }
     
+    func isTerminal() -> Bool {
+        return winner() != nil || board.isFull()
+    }
+    
     mutating func reset() {
         board = TicTacToe.emptyGameBoard()
         currentPlayer = .X
