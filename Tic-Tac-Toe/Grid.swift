@@ -23,4 +23,12 @@ struct Grid<Content> {
             asLinearArrangement.append(Cell(id: number))
         }
     }
+    
+    func isFull() -> Bool {
+        return asLinearArrangement.allSatisfy({ $0.content != nil })
+    }
+
+    func isEmpty() -> Bool {
+        return asLinearArrangement.allSatisfy({ $0.content == nil })
+    }
 }
