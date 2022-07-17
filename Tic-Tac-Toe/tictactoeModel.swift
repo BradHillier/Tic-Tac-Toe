@@ -27,14 +27,22 @@ struct TicTacToe<CellContent> {
         }
     }
     
-    func choose(cell: Grid<CellContent>.Cell) {
-        
-    }
-    
     static func emptyGameBoard() -> Grid<Player?> {
         let emptyBoard = Grid<Player?>(size: 3)
         return emptyBoard
     }
     
+    func choose(cell: Grid<CellContent>.Cell) {
+        
+    }
+    
+    func winner() -> Player? {
+        return nil
+    }
+    
+    mutating func reset() {
+        board = TicTacToe.emptyGameBoard()
+        currentPlayer = .X
+    }
 
 }
