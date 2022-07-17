@@ -9,9 +9,9 @@ import Foundation
 
 struct TicTacToe<CellContent> {
     
-    private var currentPlayer: Player = .X
-    private var gridSize: Int = 3
-    private(set) var board: Grid<Player?>  = emptyGameBoard()
+    private var currentPlayer: Player
+    private var gridSize: Int
+    private(set) var board: Grid<Player?>
     
     enum Player {
         case X
@@ -27,9 +27,15 @@ struct TicTacToe<CellContent> {
         }
     }
     
-    static func emptyGameBoard() -> Grid<Player?> {
-        let emptyBoard = Grid<Player?>(size: 3)
+    static func emptyGameBoard(size: Int) -> Grid<Player?> {
+        let emptyBoard = Grid<Player?>(size: size)
         return emptyBoard
+    }
+    
+    init(gridSize: Int) {
+        self.gridSize = gridSize
+        board = TicTacToe.emptyGameBoard(size: gridSize)
+        currentPlayer = .X
     }
     
     func choose(cell: Grid<CellContent>.Cell) {
@@ -45,7 +51,7 @@ struct TicTacToe<CellContent> {
     }
     
     mutating func reset() {
-        board = TicTacToe.emptyGameBoard()
+        board = TicTacToe.emptyGameBoard(size: 3)
         currentPlayer = .X
     }
 
