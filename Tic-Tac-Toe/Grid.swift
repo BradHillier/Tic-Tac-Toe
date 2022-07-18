@@ -16,6 +16,10 @@ struct Grid<Content>: CustomStringConvertible {
         /* only grid should need to see the id and content*/
         private(set) var id: Int
         var content: Content?
+        
+        func isEmpty() -> Bool {
+            return content == nil
+        }
     }
     
     // Todo: add ability to supply default content for cells
@@ -64,7 +68,7 @@ struct Grid<Content>: CustomStringConvertible {
         return splits
     }
     
-    mutating func changeContent(of cell: Cell, to content: Content) {
+    mutating func changeContent(of cell: Cell, to content: Content?) {
         asLinearArrangement[cell.id].content = content
     }
     
