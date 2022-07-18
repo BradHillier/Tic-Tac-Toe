@@ -43,6 +43,14 @@ struct TicTacToe<CellContent> {
     }
     
     func winner() -> Player? {
+        for player in [Player.X, Player.Y] {
+            for row in board.rows() {
+                if row.allSatisfy({ $0.content == player }) { return player }
+            }
+            for column in board.columns() {
+                if column.allSatisfy({ $0.content == player }) { return player }
+            }
+        }
         return nil
     }
     
