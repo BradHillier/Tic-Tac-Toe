@@ -12,7 +12,10 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
+            Text("Tic Tac Toe!").font(.largeTitle)
+            Spacer()
             GridView(game: game)
+            Spacer()
             HStack {
                 Spacer()
                 Button {
@@ -34,6 +37,7 @@ struct ContentView: View {
                 }
                 Spacer()
             }
+            .padding()
         }
         .controlSize(.large)
     }
@@ -43,7 +47,7 @@ struct GridView: View {
     @ObservedObject var game: ImageTicTacToeGame
     
     var body: some View {
-        LazyVGrid (columns: Array(repeating: GridItem(), count: game.size), spacing: 10) {
+        LazyVGrid (columns: Array(repeating: GridItem(), count: game.size), spacing: 8) {
             ForEach(game.board) { cell in
                 CellView(player: game.getValue(of: cell))
                     .aspectRatio(1/1, contentMode: .fit)
@@ -59,16 +63,17 @@ struct GridView: View {
 }
 
 struct CellView: View {
-    var player: String
+    var player: Image?
     
     var body: some View {
         ZStack {
             Rectangle()
                 .fill(.background)
-            Text(player)
-                .font(.largeTitle)
-                .bold()
-                .foregroundColor(.black)
+            if let playerImage = player {
+                playerImage
+                    .font(.largeTitle)
+                    .foregroundColor(.black)
+            }
         }
     }
 }

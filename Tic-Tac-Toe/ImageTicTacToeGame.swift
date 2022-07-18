@@ -23,15 +23,14 @@ class ImageTicTacToeGame: ObservableObject {
         game.choose(cell: cell)
     }
     
-    func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> String {
-        print(game)
+    func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> Image? {
         switch cell.content {
         case .X:
-            return "X"
+            return Image(systemName: "xmark")
         case .O:
-            return "O"
+            return Image(systemName: "circle")
         default:
-            return " "
+            return nil
         }
     }
     
