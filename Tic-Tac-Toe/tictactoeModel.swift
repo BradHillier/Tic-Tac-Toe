@@ -38,11 +38,13 @@ struct TicTacToe<CellContent> {
         currentPlayer = .X
     }
     
-    func choose(cell: Grid<CellContent>.Cell) {
-        
+    mutating func choose(cell: Grid<Player?>.Cell) {
+        board.changeContent(of: cell, to: currentPlayer)
+        currentPlayer = !currentPlayer
     }
     
     func winner() -> Player? {
+        // TODO: make this adapt to X number of players
         for player in [Player.X, Player.Y] {
             for row in board.rows() {
                 if row.allSatisfy({ $0.content == player }) { return player }
