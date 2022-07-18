@@ -18,12 +18,12 @@ class GameboardManipulationTests: XCTestCase {
     }
     
     func testCreateEmptyGameBoard() throws {
-        XCTAssertEqual(TicTacToe<Int>.emptyGameBoard().asLinearArrangement.map() { $0.id }.elementsEqual(0..<9), true)
+        XCTAssertEqual(TicTacToe.emptyGameBoard(size: 3).asLinearArrangement.map() { $0.id }.elementsEqual(0..<9), true)
     }
     
     func testPlayerExclamationPrefixOverload() throws {
-        XCTAssertEqual(!TicTacToe<Int>.Player.X, TicTacToe<Int>.Player.Y)
-        XCTAssertEqual(!TicTacToe<Int>.Player.Y, TicTacToe<Int>.Player.X)
+        XCTAssertEqual(!TicTacToe.Player.X, TicTacToe.Player.O)
+        XCTAssertEqual(!TicTacToe.Player.O, TicTacToe.Player.X)
     }
 
 }
