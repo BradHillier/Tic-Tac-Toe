@@ -60,8 +60,8 @@ struct TicTacToe {
     mutating func redo() {
         if !undoneMoves.isEmpty {
             let cell = undoneMoves.removeLast()
-            currentPlayer = !currentPlayer
             moves.append(board.changeContent(of: cell, to: currentPlayer))
+            currentPlayer = !currentPlayer
         }
     }
     
