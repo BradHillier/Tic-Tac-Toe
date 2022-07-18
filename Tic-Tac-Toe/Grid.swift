@@ -13,9 +13,9 @@ struct Grid<Content>: CustomStringConvertible {
     private let size: Int
     
     struct Cell: Identifiable {
-        /* only grid should need to see the id*/
+        /* only grid should need to see the id and content*/
         private(set) var id: Int
-        private(set) var content: Content?
+        var content: Content?
     }
     
     // Todo: add ability to supply default content for cells
@@ -64,13 +64,17 @@ struct Grid<Content>: CustomStringConvertible {
         return splits
     }
     
+    mutating func changeContent(of cell: Cell, to content: Content) {
+        asLinearArrangement[cell.id].content = content
+    }
+    
     var description: String {
         var des = ""
         for row in rows() {
             des += String(repeating: "-", count: size * 4 + 1)
             des += "\n"
             for cell in row {
-                des += "| \(cell.id) "
+                des += "| \(String(describing: cell.content)) "
             }
             des += "|\n"
         }
