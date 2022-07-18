@@ -13,6 +13,7 @@ struct TicTacToe {
     private(set) var gridSize: Int
     private(set) var board: Grid<Player?>
     private var moves = Array<Grid<Player?>.Cell>()
+    private var undoneMoves = Array<Grid<Player?>.Cell>()
     
     enum Player: CaseIterable {
         case X, O
@@ -92,6 +93,8 @@ struct TicTacToe {
     mutating func reset() {
         board = TicTacToe.emptyGameBoard(size: gridSize)
         currentPlayer = .X
+        moves.removeAll()
+        undoneMoves.removeAll()
     }
 
 }
