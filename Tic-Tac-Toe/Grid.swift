@@ -36,16 +36,32 @@ struct Grid<Content>: CustomStringConvertible {
     }
     
     func rows() -> [Array<Grid<Content>.Cell>] {
-        var split = [[Cell]]()
+        var splits = [[Cell]]()
         var currentRow = [Cell]()
         for cell in asLinearArrangement {
             currentRow.append(cell)
             if (cell.id + 1) % size == 0 {
-                split.append(currentRow)
+                splits.append(currentRow)
                 currentRow.removeAll()
             }
         }
-        return split
+        return splits
+    }
+    
+    func columns() -> [Array<Grid<Content>.Cell>] {
+        var splits = [[Cell]]()
+        var currentColumn = [Cell]()
+        
+        for column in 0..<size {
+            var cell = column
+            while cell < size * size {
+                currentColumn.append(asLinearArrangement[cell])
+                cell += size
+            }
+            splits.append(currentColumn)
+            currentColumn.removeAll()
+        }
+        return splits
     }
     
     var description: String {
