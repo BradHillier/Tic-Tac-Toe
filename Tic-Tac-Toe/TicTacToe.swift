@@ -7,21 +7,21 @@
 
 import Foundation
 
-struct TicTacToe<CellContent> {
+struct TicTacToe {
     
     private var currentPlayer: Player
-    private var gridSize: Int
+    private(set) var gridSize: Int
     private(set) var board: Grid<Player?>
+    private var moves = Array<Grid<Player?>.Cell>()
     
-    enum Player {
-        case X
-        case Y
+    enum Player: CaseIterable {
+        case X, O
         
-        static prefix func !(right: TicTacToe<CellContent>.Player) -> Player {
+        static prefix func !(right: TicTacToe.Player) -> Player {
             switch right {
             case .X:
-                return .Y
-            case .Y:
+                return .O
+            case .O:
                 return .X
             }
         }
@@ -39,13 +39,24 @@ struct TicTacToe<CellContent> {
     }
     
     mutating func choose(cell: Grid<Player?>.Cell) {
-        board.changeContent(of: cell, to: currentPlayer)
-        currentPlayer = !currentPlayer
+        if cell.isEmpty() && winner() == nil {
+            board.changeContent(of: cell, to: currentPlayer)
+            moves.append(cell)
+            currentPlayer = !currentPlayer
+        }
+    }
+    
+    mutating func undo() {
+        if !moves.isEmpty {
+            let move: Grid<Player?>.Cell = moves.removeLast()
+            board.changeContent(of: move, to: nil)
+            currentPlayer =  !currentPlayer
+        }
+        
     }
     
     func winner() -> Player? {
-        // TODO: make this adapt to X number of players
-        for player in [Player.X, Player.Y] {
+        for player in Player.allCases {
             for row in board.rows() {
                 if row.allSatisfy({ $0.content == player }) { return player }
             }
@@ -61,7 +72,7 @@ struct TicTacToe<CellContent> {
     }
     
     mutating func reset() {
-        board = TicTacToe.emptyGameBoard(size: 3)
+        board = TicTacToe.emptyGameBoard(size: gridSize)
         currentPlayer = .X
     }
 
