@@ -68,8 +68,9 @@ struct Grid<Content>: CustomStringConvertible {
         return splits
     }
     
-    mutating func changeContent(of cell: Cell, to content: Content?) {
+    mutating func changeContent(of cell: Cell, to content: Content?) -> Cell {
         asLinearArrangement[cell.id].content = content
+        return asLinearArrangement[cell.id]
     }
     
     var description: String {

@@ -12,7 +12,7 @@ class ImageTicTacToeGame: ObservableObject {
     @Published private var game: TicTacToe
     
     init() {
-        game = TicTacToe(gridSize: 4)
+        game = TicTacToe(gridSize: 3)
     }
     
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.asLinearArrangement }
