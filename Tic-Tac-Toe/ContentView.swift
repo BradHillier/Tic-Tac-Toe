@@ -27,6 +27,12 @@ struct ContentView: View {
                     Image(systemName: "arrow.uturn.backward")
                 }
                 Spacer()
+                Button {
+                    game.redo()
+                } label: {
+                    Image(systemName: "arrow.uturn.forward")
+                }
+                Spacer()
             }
         }
         .controlSize(.large)

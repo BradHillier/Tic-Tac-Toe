@@ -39,6 +39,10 @@ class ImageTicTacToeGame: ObservableObject {
         game.undo()
     }
     
+    func redo() {
+        game.redo()
+    }
+    
     func reset() {
         game.reset()
     }

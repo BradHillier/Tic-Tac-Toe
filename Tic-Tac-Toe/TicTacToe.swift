@@ -55,6 +55,17 @@ struct TicTacToe {
         
     }
     
+    mutating func redo() {
+        if !undoneMoves.isEmpty {
+            let cell = undoneMoves.removeLast()
+            
+            /* the same */
+            currentPlayer = !currentPlayer
+            moves.append(board.changeContent(of: cell, to: currentPlayer))
+            
+        }
+    }
+    
     func winner() -> Player? {
         for player in Player.allCases {
             for row in board.rows() {
