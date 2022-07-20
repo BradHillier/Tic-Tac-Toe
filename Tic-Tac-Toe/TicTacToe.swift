@@ -9,7 +9,7 @@ import Foundation
 
 struct TicTacToe {
     
-    private var currentPlayer: Player
+    private(set) var currentPlayer: Player
     private(set) var gridSize: Int
     private(set) var board: Grid<Player?>
     private var moves = Array<Grid<Player?>.Cell>()
