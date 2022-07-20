@@ -24,14 +24,7 @@ class ImageTicTacToeGame: ObservableObject {
     }
     
     func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> Image? {
-        switch cell.content {
-        case .X:
-            return Image(systemName: "xmark")
-        case .O:
-            return Image(systemName: "circle")
-        default:
-            return nil
-        }
+        return image(of: cell.content)
     }
     
     func undo() {
@@ -45,4 +38,18 @@ class ImageTicTacToeGame: ObservableObject {
     func reset() {
         game.reset()
     }
+    
+    
+    func image(of player: TicTacToe.Player??) -> Image? {
+        switch player {
+        case .X:
+            return Image(systemName: "xmark")
+        case .O:
+            return Image(systemName: "circle")
+        default:
+            return nil
+        }
+        
+    }
+    
 }
