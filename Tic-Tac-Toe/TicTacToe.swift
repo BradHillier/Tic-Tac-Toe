@@ -41,9 +41,11 @@ struct TicTacToe {
     
     mutating func choose(cell: Grid<Player?>.Cell) {
         if cell.isEmpty() && winner() == nil {
-            moves.append(board.changeContent(of: cell, to: currentPlayer))
-            currentPlayer = !currentPlayer
-            undoneMoves.removeAll()
+            if let successfulMove = board.changeContent(of: cell, to: currentPlayer) {
+                moves.append(successfulMove)
+                currentPlayer = !currentPlayer
+                undoneMoves.removeAll()
+            }
             
         }
     }
@@ -51,17 +53,20 @@ struct TicTacToe {
     mutating func undo() {
         if !moves.isEmpty {
             let cell: Grid<Player?>.Cell = moves.removeLast()
-            undoneMoves.append(board.changeContent(of: cell, to: nil))
-            currentPlayer = !currentPlayer
+            if let successfulUndo = board.changeContent(of: cell, to: nil) {
+                undoneMoves.append(successfulUndo)
+                currentPlayer = !currentPlayer
+            }
         }
-        
     }
     
     mutating func redo() {
         if !undoneMoves.isEmpty {
             let cell = undoneMoves.removeLast()
-            moves.append(board.changeContent(of: cell, to: currentPlayer))
-            currentPlayer = !currentPlayer
+            if let successfulMove = board.changeContent(of: cell, to: currentPlayer) {
+                moves.append(successfulMove)
+                currentPlayer = !currentPlayer
+            }
         }
     }
     
