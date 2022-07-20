@@ -15,6 +15,7 @@
 		94895CD92883F6E5004F6ADD /* TicTacToe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94895CC72883E2A3004F6ADD /* TicTacToe.swift */; };
 		94895CDB28841266004F6ADD /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94895CDA28841266004F6ADD /* Grid.swift */; };
 		94895CDD2884F730004F6ADD /* ImageTicTacToeGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94895CDC2884F72F004F6ADD /* ImageTicTacToeGame.swift */; };
+		94D6BEF028888FEE00CE17AB /* TicTacToeBot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94D6BEEF28888FEE00CE17AB /* TicTacToeBot.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		94895CD12883F550004F6ADD /* Tic_Tac_ToeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tic_Tac_ToeTests.swift; sourceTree = "<group>"; };
 		94895CDA28841266004F6ADD /* Grid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		94895CDC2884F72F004F6ADD /* ImageTicTacToeGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageTicTacToeGame.swift; sourceTree = "<group>"; };
+		94D6BEEF28888FEE00CE17AB /* TicTacToeBot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicTacToeBot.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +88,7 @@
 				94895CBB2883E20F004F6ADD /* ContentView.swift */,
 				94895CBD2883E211004F6ADD /* Assets.xcassets */,
 				94895CBF2883E211004F6ADD /* Preview Content */,
+				94D6BEEF28888FEE00CE17AB /* TicTacToeBot.swift */,
 			);
 			path = "Tic-Tac-Toe";
 			sourceTree = "<group>";
@@ -210,6 +213,7 @@
 				94895CDD2884F730004F6ADD /* ImageTicTacToeGame.swift in Sources */,
 				94895CD92883F6E5004F6ADD /* TicTacToe.swift in Sources */,
 				94895CBA2883E20F004F6ADD /* Tic_Tac_ToeApp.swift in Sources */,
+				94D6BEF028888FEE00CE17AB /* TicTacToeBot.swift in Sources */,
 				94895CDB28841266004F6ADD /* Grid.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

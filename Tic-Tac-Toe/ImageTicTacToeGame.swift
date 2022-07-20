@@ -18,6 +18,10 @@ class ImageTicTacToeGame: ObservableObject {
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.asLinearArrangement }
     
     var size: Int { return game.gridSize }
+    var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.asLinearArrangement }
+    var winner: TicTacToe.Player? { return game.winner() }
+    var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
+    
     
     func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
         game.choose(cell: cell)

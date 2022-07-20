@@ -12,28 +12,52 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Text("Tic Tac Toe!").font(.largeTitle)
+            Spacer()
+            Text("Tic Tac Toe").font(.largeTitle)
+            Spacer()
+            HStack {
+                if game.winner != nil {
+                    game.image(of: game.winner)
+                    Text(" Wins")
+                } else {
+                    game.image(of: game.currentPlayer)
+                    Text("'s Turn")
+                }
+            }
+                .font(.headline)
+                .foregroundColor(.primary)
+            Spacer()
             Spacer()
             GridView(game: game)
+            Spacer()
             Spacer()
             HStack {
                 Spacer()
                 Button {
                     game.reset()
                 } label: {
-                    Image(systemName: "restart")
+                    VStack {
+                        Image(systemName: "restart")
+                        Text("restart")
+                    }
                 }
                 Spacer()
                 Button {
                     game.undo()
                 } label: {
-                    Image(systemName: "arrow.uturn.backward")
+                    VStack {
+                        Image(systemName: "arrow.uturn.backward")
+                        Text("undo")
+                    }
                 }
                 Spacer()
                 Button {
                     game.redo()
                 } label: {
-                    Image(systemName: "arrow.uturn.forward")
+                    VStack {
+                        Image(systemName: "arrow.uturn.forward")
+                        Text("redo")
+                    }
                 }
                 Spacer()
             }
@@ -72,7 +96,7 @@ struct CellView: View {
             if let playerImage = player {
                 playerImage
                     .font(.largeTitle)
-                    .foregroundColor(.black)
+                    .foregroundColor(.primary)
             }
         }
     }
