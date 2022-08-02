@@ -17,6 +17,7 @@ class ImageTicTacToeGame: ObservableObject {
     
     var size: Int { return game.gridSize }
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.asLinearArrangement }
+    var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner() }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
     
