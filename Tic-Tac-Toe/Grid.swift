@@ -9,7 +9,7 @@ import Foundation
 
 struct Grid<Content>: CustomStringConvertible {
     
-    private(set) var asLinearArrangement: Array<Cell>
+    private(set) var cells: Array<Cell>
     private let size: Int
     
     struct Cell: Identifiable {
@@ -25,24 +25,24 @@ struct Grid<Content>: CustomStringConvertible {
     // Todo: add ability to supply default content for cells
     init(size: Int) {
         self.size = size
-        asLinearArrangement = Array<Cell>()
+        cells = Array<Cell>()
         for number in 0..<size * size {
-            asLinearArrangement.append(Cell(id: number))
+            cells.append(Cell(id: number))
         }
     }
     
     func isFull() -> Bool {
-        return asLinearArrangement.allSatisfy({ $0.content != nil })
+        return cells.allSatisfy({ $0.content != nil })
     }
 
     func isEmpty() -> Bool {
-        return asLinearArrangement.allSatisfy({ $0.content == nil })
+        return cells.allSatisfy({ $0.content == nil })
     }
     
     func rows() -> [Array<Grid<Content>.Cell>] {
         var splits = [[Cell]]()
         var currentRow = [Cell]()
-        for cell in asLinearArrangement {
+        for cell in cells {
             currentRow.append(cell)
             if (cell.id + 1) % size == 0 {
                 splits.append(currentRow)
@@ -59,7 +59,7 @@ struct Grid<Content>: CustomStringConvertible {
         for column in 0..<size {
             var cell = column
             while cell < size * size {
-                currentColumn.append(asLinearArrangement[cell])
+                currentColumn.append(cells[cell])
                 cell += size
             }
             splits.append(currentColumn)
@@ -69,9 +69,9 @@ struct Grid<Content>: CustomStringConvertible {
     }
     
     mutating func changeContent(of cell: Cell, to content: Content?) -> Cell? {
-        if let chosenIndex = asLinearArrangement.firstIndex(where: { $0.id == cell.id }) {
-            asLinearArrangement[chosenIndex].content = content
-            return asLinearArrangement[chosenIndex]
+        if let chosenIndex = cells.firstIndex(where: { $0.id == cell.id }) {
+            cells[chosenIndex].content = content
+            return cells[chosenIndex]
         }
         return nil
     }

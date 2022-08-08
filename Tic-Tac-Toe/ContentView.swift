@@ -13,18 +13,18 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Spacer()
-            Text("Tic Tac Toe").font(.largeTitle)
-            Spacer()
             HStack {
                 if game.winner != nil {
                     game.image(of: game.winner)
                     Text(" Wins")
+                } else if game.isTerminal {
+                    Text("Tie")
                 } else {
                     game.image(of: game.currentPlayer)
                     Text("'s Turn")
                 }
             }
-                .font(.headline)
+                .font(.largeTitle)
                 .foregroundColor(.primary)
             Spacer()
             Spacer()
