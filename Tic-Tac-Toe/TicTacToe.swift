@@ -78,14 +78,14 @@ struct TicTacToe {
             for column in board.columns() {
                 if column.allSatisfy({ $0.content == player }) { return player }
             }
-            var diagonalLeft = [Grid<Player?>.Cell]()
-            var diagonalRight = [Grid<Player?>.Cell]()
+            var diagonalTopLeftToBottomRight = [Board.Cell]()
+            var diagonalBottomLeftToTopRight = [Board.Cell]()
             for index in 0..<gridSize {
-                diagonalLeft.append(board.rows()[index][index])
-                diagonalRight.append(board.rows()[(gridSize - 1) - index][index])
+                diagonalTopLeftToBottomRight.append(board.rows()[index][index])
+                diagonalBottomLeftToTopRight.append(board.rows()[(gridSize - 1) - index][index])
             }
-            if diagonalLeft.allSatisfy({ $0.content == player }) { return player }
-            if diagonalRight.allSatisfy({ $0.content == player }) { return player }
+            if diagonalTopLeftToBottomRight.allSatisfy({ $0.content == player }) { return player }
+            if diagonalBottomLeftToTopRight.allSatisfy({ $0.content == player }) { return player }
             
         }
         return nil
