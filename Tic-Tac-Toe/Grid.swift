@@ -148,18 +148,4 @@ struct Grid<Content> {
         }
         return nil
     }
-    
-    var description: String {
-        var des = ""
-        for row in rows() {
-            des += String(repeating: "-", count: size * 4 + 1)
-            des += "\n"
-            for cell in row {
-                des += "| \(String(describing: cell.content)) "
-            }
-            des += "|\n"
-        }
-        des += String(repeating: "-", count: size * 4 + 1)
-        return des
-    }
 }
