@@ -11,27 +11,19 @@ struct TicTacToe {
     
     typealias Board = Grid<Player?>
     
-    private(set) var currentPlayer: Player
+    /// the `Player` who will take the first turn at the start of a new game
+    static private let defaultPlayer: Player = .X
+    
+    /// the `Player` who is currently taking a turn
+    private(set) var currentPlayer = defaultPlayer
+    
+    /// the number of `Grid.Cell`'s contained in each row and column of the `Board`
     private(set) var gridSize: Int
+    
+    /// a `Grid` of `Player?` representing the state of the `TicTacToe` game
     private(set) var board: Board
     private(set) var moves = Array<Board.Cell>()
     private var undoneMoves = Array<Board.Cell>()
-    
-    /// representing the players of a TicTacToe game\
-    ///
-    /// - Note: the is a test note
-    enum Player: CaseIterable {
-        case X, O
-        
-        static prefix func !(right: TicTacToe.Player) -> Player {
-            switch right {
-            case .X:
-                return .O
-            case .O:
-                return .X
-            }
-        }
-    }
     
     /// Returns a `Grid` containing `nil` `Player` optionals of the provided size
     static func emptyGameBoard(size: Int) -> Board {
@@ -39,18 +31,24 @@ struct TicTacToe {
         return emptyBoard
     }
     
-    ///  Creates an instance with an empty board and `.X`
+    ///  Creates an instance with an empty board and `.X` as the starting player
     init(gridSize: Int) {
         self.gridSize = gridSize
         board = TicTacToe.emptyGameBoard(size: gridSize)
         currentPlayer = .X
     }
     
-    /// Change the content of the provided `cell` to the current `Player`;
-    /// only if the cell isn't already taken and the game isn't over
-    ///
-    ///  - Parameter cell: The cell the current player is attempting to choose
-    mutating func choose(cell: Board.Cell) {
+    /**
+     Change the content of the provided `cell` to the current `Player`;
+     only if the cell isn't already taken and the game isn't over
+     
+     - returns:
+     `true` if the cell was successfully chose; otherwise `false`
+     
+     - parameters:
+            - cell: The cell the current player is attemping to choose.
+     */
+    mutating func choose(cell: Board.Cell) -> Bool {
         if cell.isEmpty() && winner() == nil {
             if let successfulMove = board.changeContent(of: cell, to: currentPlayer) {
                 moves.append(successfulMove)
@@ -83,11 +81,19 @@ struct TicTacToe {
         }
     }
     
-    /// Returns the winning Player of a TicTacToe instance
-    ///
-    ///  Checks for a winner horizontally, vertically, and diagonally
-    /// - Complexity: O(n), where n is the size of the instance's board
-    /// - Returns: the winning `Player` if there is one; `nil` otherwise.
+    /**
+    Returns the winning Player of a TicTacToe instance
+    Checks for a winner horizontally, vertically, and diagonally
+     
+     - Returns:
+     the winning `Player` if there is one; `nil` otherwise.
+     
+     - Complexity:
+     O(n), where n is the number of possible win paths
+     
+    - Note:
+     This could be made faster by by checking for either winner on a single pass of the possible win paths.
+    */
     func winner() -> Player? {
         for player in Player.allCases {
             for row in board.rows() {
@@ -109,8 +115,10 @@ struct TicTacToe {
         return nil
     }
     
-    /// Returns`true` if the game is over or there are no available moves;
-    /// otherwise return `false`
+    /**
+    Returns`true` if  a player has won the game or there are no available moves left on the board;
+    otherwise return `false`
+     */
     func isTerminal() -> Bool {
         return winner() != nil || board.isFull()
     }
