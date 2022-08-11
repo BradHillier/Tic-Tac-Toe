@@ -5,6 +5,7 @@
 //  Created by Brad Hillier on 2022-07-16.
 //
 
+
 import Foundation
 
 struct TicTacToe {
@@ -129,5 +130,55 @@ struct TicTacToe {
         currentPlayer = .X
         moves.removeAll()
         undoneMoves.removeAll()
+    }
+    
+    /**
+    return the `Player` who has the most consectutive occurences in the provided group coupled with the count of those occurences
+     
+    - Complexity:
+    O(n), where n is the number of `Cell`'s in the provided `group`
+     
+    - Parameters:
+        - group: the group in which to count consecutive cells containing the same player
+    */
+    private func maxPlayerSubset(in group: Array<Board.Cell>) -> (Player?, Int) {
+        
+        var maxOccurences = 0
+        
+        var maxPlayer: Player?
+        
+        var currentOccurences = 0
+        
+        if var currentPlayer = group.first?.content {
+            for cell in group {
+                if cell.content == currentPlayer {
+                    currentOccurences += 1
+                    if currentOccurences > maxOccurences {
+                        maxOccurences = currentOccurences
+                        maxPlayer = currentPlayer
+                    }
+                } else {
+                    currentOccurences = 1
+                    if let player = cell.content {
+                        currentPlayer = player
+                    }
+                }
+            }
+        }
+        return (maxPlayer, maxOccurences)
+    }
+    
+    /// Represents either the X player or the O player in a game of Tictactoe
+    enum Player: CaseIterable {
+        case X, O
+        
+        static prefix func !(right: TicTacToe.Player) -> Player {
+            switch right {
+            case .X:
+                return .O
+            case .O:
+                return .X
+            }
+        }
     }
 }
