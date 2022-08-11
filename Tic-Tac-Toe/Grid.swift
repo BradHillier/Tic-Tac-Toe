@@ -7,14 +7,19 @@
 
 import Foundation
 
-struct Grid<Content>: CustomStringConvertible {
+struct Grid<Content> {
     
+    
+    // An array of the grids cell s
     private(set) var cells: Array<Cell>
     private let size: Int
     
     struct Cell: Identifiable {
         /* only grid should need to see the id and content*/
         private(set) var id: Int
+        private(set) var row: Int
+        private(set) var column: Int
+        
         var content: Content?
         
         func isEmpty() -> Bool {
@@ -27,45 +32,61 @@ struct Grid<Content>: CustomStringConvertible {
         self.size = size
         cells = Array<Cell>()
         for number in 0..<size * size {
-            cells.append(Cell(id: number))
+            cells.append(
+                Cell(id: number,
+                     row: number % size,
+                     column: Int(number / size)
+                    ))
         }
     }
     
+    /// returns true if all cells in the grid contain `Content`; otherwise false
     func isFull() -> Bool {
         return cells.allSatisfy({ $0.content != nil })
     }
 
+    /// returns true if no cells in the grid contain `Content`; otherwise false
     func isEmpty() -> Bool {
         return cells.allSatisfy({ $0.content == nil })
     }
     
-    func rows() -> [Array<Grid<Content>.Cell>] {
-        var splits = [[Cell]]()
-        var currentRow = [Cell]()
-        for cell in cells {
-            currentRow.append(cell)
-            if (cell.id + 1) % size == 0 {
-                splits.append(currentRow)
-                currentRow.removeAll()
-            }
+    func rows() -> [[Cell]] {
+        
+        var rows = [[Cell]]()
+        
+        for row in 0..<size {
+            rows.append(cells.filter({ (size * row) <= $0.id && $0.id < (size * (row + 1)) }))
         }
         return splits
     }
     
-    func columns() -> [Array<Grid<Content>.Cell>] {
-        var splits = [[Cell]]()
-        var currentColumn = [Cell]()
+    /// - Todo: Write Tests
+    func columns() -> [[Cell]] {
+        
+        var columns = [[Cell]]()
         
         for column in 0..<size {
-            var cell = column
-            while cell < size * size {
-                currentColumn.append(cells[cell])
-                cell += size
-            }
-            splits.append(currentColumn)
-            currentColumn.removeAll()
+            columns.append(cells.filter({ ($0.id - column) % size == 0 }))
         }
-        return splits
+        return columns
+    }
+    
+    func diagonals() -> [[Cell]] {
+        
+        let secondRowSecondColumnID = size + 1
+        let topRightID = size - 1
+        
+        /// All cells on the diagonal starting from the top left of the board and ending with the bottom right
+        let diagonalTopLeftToBottomRight = cells.filter({ cell in
+            cell.id % secondRowSecondColumnID == 0
+        })
+        
+        let diagonalBottomLeftToTopRight = cells.filter({ cell in
+            cell.id != 0 &&
+            cell.id % topRightID == 0 &&
+            cell.id <= topRightID * size
+        })
+        return [diagonalTopLeftToBottomRight, diagonalBottomLeftToTopRight]
     }
     
     mutating func changeContent(of cell: Cell, to content: Content?) -> Cell? {
