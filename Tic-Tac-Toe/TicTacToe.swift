@@ -23,6 +23,8 @@ struct TicTacToe {
     
     /// a `Grid` of `Player?` representing the state of the `TicTacToe` game
     private(set) var board: Board
+    
+    /// all moves taken since the games initial state
     private(set) var moves = Array<Board.Cell>()
     private var undoneMoves = Array<Board.Cell>()
     
@@ -36,7 +38,6 @@ struct TicTacToe {
     init(gridSize: Int) {
         self.gridSize = gridSize
         board = TicTacToe.emptyGameBoard(size: gridSize)
-        currentPlayer = .X
     }
     
     /**
@@ -55,31 +56,36 @@ struct TicTacToe {
                 moves.append(successfulMove)
                 currentPlayer = !currentPlayer
                 undoneMoves.removeAll()
+                return true
             }
-            
         }
+        return false
     }
     
     /// undo the most recent move
-    mutating func undo() {
+    mutating func undo() -> Bool {
         if !moves.isEmpty {
             let cell: Grid<Player?>.Cell = moves.removeLast()
             if let successfulUndo = board.changeContent(of: cell, to: nil) {
                 undoneMoves.append(successfulUndo)
                 currentPlayer = !currentPlayer
+                return true
             }
         }
+        return false
     }
     
     /// redo the mostly recently undone move
-    mutating func redo() {
+    mutating func redo() -> Bool {
         if !undoneMoves.isEmpty {
             let cell = undoneMoves.removeLast()
-            if let successfulMove = board.changeContent(of: cell, to: currentPlayer) {
-                moves.append(successfulMove)
+            if let succesfullRedo = board.changeContent(of: cell, to: currentPlayer) {
+                moves.append(succesfullRedo)
                 currentPlayer = !currentPlayer
+                return true
             }
         }
+        return false
     }
     
     /**
