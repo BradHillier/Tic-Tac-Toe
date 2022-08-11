@@ -18,7 +18,7 @@ class GameboardManipulationTests: XCTestCase {
     }
     
     func testCreateEmptyGameBoard() throws {
-        XCTAssertEqual(TicTacToe.emptyGameBoard(size: 3).asLinearArrangement.map() { $0.id }.elementsEqual(0..<9), true)
+        XCTAssertEqual(TicTacToe.emptyGameBoard(size: 3).cells.map() { $0.id }.elementsEqual(0..<9), true)
     }
     
     func testPlayerExclamationPrefixOverload() throws {
