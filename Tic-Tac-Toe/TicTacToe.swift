@@ -15,6 +15,8 @@ struct TicTacToe {
     /// the `Player` who will take the first turn at the start of a new game
     static private let defaultPlayer: Player = .X
     
+    static private let WinCondition: Int = 3
+    
     /// the `Player` who is currently taking a turn
     private(set) var currentPlayer = defaultPlayer
     
@@ -104,12 +106,11 @@ struct TicTacToe {
     func winner() -> Player? {
         
         let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
-        let winCondition = 5
         
-        for cellGroup in possibleWinPaths {
-            let maxSubset = maxPlayerSubset(in: cellGroup)
-            if maxSubset.1 >= winCondition {
-                return maxSubset.0
+        for path in possibleWinPaths {
+            let (player, count) = maxPlayerOccurences(in: path)
+            if count >= TicTacToe.WinCondition {
+                return player
             }
         }
         return nil
@@ -140,7 +141,7 @@ struct TicTacToe {
     - Parameters:
         - group: the group in which to count consecutive cells containing the same player
     */
-    private func maxPlayerSubset(in group: Array<Board.Cell>) -> (Player?, Int) {
+    private func maxPlayerOccurences(in group: Array<Board.Cell>) -> (Player?, Int) {
         
         var maxOccurences = 0
         
