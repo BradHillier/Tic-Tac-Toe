@@ -60,10 +60,18 @@ struct Grid<Content> {
         /// a 2D array where nested arrays contain the cells for a given row on the `TicTacToe` board
         var rows = [[Cell]]()
         
+        /// the first id in the current row
+        var start: Int
+        
+        /// the id of first element in the next row
+        var end: Int
+        
         for row in 0..<size {
-            rows.append(cells.filter({ (size * row) <= $0.id && $0.id < (size * (row + 1)) }))
+            start = size * row
+            end = size * (row + 1)
+            rows.append(cells.filter({ start <= $0.id && $0.id < end }) )
         }
-        return splits
+        return rows
     }
     
     ///  Returns the array representations of the grids columns ordered from left to right
