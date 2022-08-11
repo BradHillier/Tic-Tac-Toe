@@ -15,8 +15,10 @@ class ImageTicTacToeGame: ObservableObject {
         game = TicTacToe(gridSize: 3)
     }
     
+    var bot = TicTacToeBot()
+    
     var size: Int { return game.gridSize }
-    var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.asLinearArrangement }
+    var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.cells }
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner() }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
@@ -24,6 +26,7 @@ class ImageTicTacToeGame: ObservableObject {
     
     func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
         game.choose(cell: cell)
+        aiMove()
     }
     
     func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> Image? {
@@ -53,6 +56,12 @@ class ImageTicTacToeGame: ObservableObject {
             return nil
         }
         
+    }
+    
+    func aiMove() {
+        if let move = bot.optimalMove(game) {
+            game.choose(cell: move)
+        }
     }
     
 }
