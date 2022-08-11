@@ -102,22 +102,15 @@ struct TicTacToe {
      This could be made faster by by checking for either winner on a single pass of the possible win paths.
     */
     func winner() -> Player? {
-        for player in Player.allCases {
-            for row in board.rows() {
-                if row.allSatisfy({ $0.content == player }) { return player }
+        
+        let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
+        let winCondition = 5
+        
+        for cellGroup in possibleWinPaths {
+            let maxSubset = maxPlayerSubset(in: cellGroup)
+            if maxSubset.1 >= winCondition {
+                return maxSubset.0
             }
-            for column in board.columns() {
-                if column.allSatisfy({ $0.content == player }) { return player }
-            }
-            var diagonalTopLeftToBottomRight = [Board.Cell]()
-            var diagonalBottomLeftToTopRight = [Board.Cell]()
-            for index in 0..<gridSize {
-                diagonalTopLeftToBottomRight.append(board.rows()[index][index])
-                diagonalBottomLeftToTopRight.append(board.rows()[(gridSize - 1) - index][index])
-            }
-            if diagonalTopLeftToBottomRight.allSatisfy({ $0.content == player }) { return player }
-            if diagonalBottomLeftToTopRight.allSatisfy({ $0.content == player }) { return player }
-            
         }
         return nil
     }
@@ -133,7 +126,7 @@ struct TicTacToe {
     /// Restore the game to it's initial state
     mutating func reset() {
         board = TicTacToe.emptyGameBoard(size: gridSize)
-        currentPlayer = .X
+        currentPlayer = TicTacToe.defaultPlayer
         moves.removeAll()
         undoneMoves.removeAll()
     }
