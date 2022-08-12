@@ -8,6 +8,9 @@
 
 import Foundation
 
+/**
+ a model of game of tictactoe
+ */
 struct TicTacToe {
     
     typealias Board = Grid<Player?>
@@ -36,7 +39,13 @@ struct TicTacToe {
         return emptyBoard
     }
     
-    ///  Creates an instance with an empty board and `.X` as the starting player
+    
+    /**
+    Creates a new instance with an empty game board of size `gridSize`
+     
+     - Parameters:
+        - gridSize: the number of cells in each of the grid's rows and columns
+     */
     init(gridSize: Int) {
         self.gridSize = gridSize
         board = TicTacToe.emptyGameBoard(size: gridSize)
@@ -46,7 +55,7 @@ struct TicTacToe {
      Change the content of the provided `cell` to the current `Player`;
      only if the cell isn't already taken and the game isn't over
      
-     - returns:
+     - Returns:
      `true` if the cell was successfully chose; otherwise `false`
      
      - parameters:
@@ -64,7 +73,15 @@ struct TicTacToe {
         return false
     }
     
-    /// undo the most recent move
+   /**
+    Undo the most recent move
+    
+    Undoes the most recently performed move and stores it in `undoneMoves`.
+    Sets the `currentPlayer` to the `Player` whose move was undone
+    
+    - Returns:
+    `true` if a move was successfully undone; otherwise `false`
+    */
     mutating func undo() -> Bool {
         if !moves.isEmpty {
             let cell: Grid<Player?>.Cell = moves.removeLast()
@@ -77,12 +94,24 @@ struct TicTacToe {
         return false
     }
     
-    /// redo the mostly recently undone move
+    /**
+    redo the mostly recently undone move
+     
+    Redoes the most recently undone move and stores it in `moves`.
+    Set current player to the next players turn
+    
+    - Returns:
+    `true` if a move was successfully redone; otherwise `false`
+    */
     mutating func redo() -> Bool {
+        
+        /// the `Grid.Cell` containing the most recently undone move
+        let cell: Board.Cell
+        
         if !undoneMoves.isEmpty {
-            let cell = undoneMoves.removeLast()
-            if let succesfullRedo = board.changeContent(of: cell, to: currentPlayer) {
-                moves.append(succesfullRedo)
+            cell = undoneMoves.removeLast()
+            if let successfullyRedoneMove = board.changeContent(of: cell, to: currentPlayer) {
+                moves.append(successfullyRedoneMove)
                 currentPlayer = !currentPlayer
                 return true
             }
@@ -105,6 +134,7 @@ struct TicTacToe {
     */
     func winner() -> Player? {
         
+        /// all potential paths on which a player could meet the win condition
         let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
         
         for path in possibleWinPaths {
@@ -117,14 +147,18 @@ struct TicTacToe {
     }
     
     /**
-    Returns`true` if  a player has won the game or there are no available moves left on the board;
+    Returns `true` if  a player has won the game or there are no available moves left on the board;
     otherwise return `false`
      */
     func isTerminal() -> Bool {
         return winner() != nil || board.isFull()
     }
     
-    /// Restore the game to it's initial state
+    /**
+    Restore the game to it's initial state
+     
+    Resets the content of the game board, sets the current player to the default player and removes knowledge of previously taken moves
+    */
     mutating func reset() {
         board = TicTacToe.emptyGameBoard(size: gridSize)
         currentPlayer = TicTacToe.defaultPlayer
@@ -143,10 +177,13 @@ struct TicTacToe {
     */
     private func maxPlayerOccurences(in group: Array<Board.Cell>) -> (Player?, Int) {
         
+        /// the current greatest number of consecutive occurences of any player in the provided `group`
         var maxOccurences = 0
         
+        /// the player who has currently appeared consecutively the greatest number of times
         var maxPlayer: Player?
         
+        /// the current number of consecutive occurences of some player
         var currentOccurences = 0
         
         if var currentPlayer = group.first?.content {
