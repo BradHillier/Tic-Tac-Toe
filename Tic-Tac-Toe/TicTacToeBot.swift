@@ -71,9 +71,10 @@ struct TicTacToeBot {
         }
         for move in game.availableMoves {
             copy = game
-            copy.choose(cell: move)
-            moveValue = getValue(of: copy, depth: MaxDepth)
-            scores.append( (move, moveValue) )
+            if copy.choose(cell: move) {
+                moveValue = getValue(of: copy, depth: MaxDepth)
+                scores.append( (move, moveValue) )
+            }
         }
         // shuffling before sorting results in scores of the same value appearing
         // in random order once sorted
@@ -108,8 +109,9 @@ struct TicTacToeBot {
         }
         for move in game.availableMoves {
             copy = game
-            copy.choose(cell: move)
-            currentValue = minOrMax(currentValue, getValue(of: copy, depth: depth-1))
+            if copy.choose(cell: move) {
+                currentValue = minOrMax(currentValue, getValue(of: copy, depth: depth-1))
+            }
         }
         return currentValue
     }
