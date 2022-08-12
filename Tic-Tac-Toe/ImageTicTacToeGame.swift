@@ -12,12 +12,12 @@ class ImageTicTacToeGame: ObservableObject {
     @Published private var game: TicTacToe
     
     init() {
-        game = TicTacToe(gridSize: 3)
+        game = TicTacToe(size: 5)
     }
     
     var bot = TicTacToeBot()
     
-    var size: Int { return game.gridSize }
+    var size: Int { return game.size }
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.cells }
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner() }

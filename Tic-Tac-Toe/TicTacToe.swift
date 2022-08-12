@@ -24,7 +24,7 @@ struct TicTacToe {
     private(set) var currentPlayer = defaultPlayer
     
     /// the number of `Grid.Cell`'s contained in each row and column of the `Board`
-    private(set) var gridSize: Int
+    private(set) var size: Int
     
     /// a `Grid` of `Player?` representing the state of the `TicTacToe` game
     private(set) var board: Board
@@ -44,11 +44,11 @@ struct TicTacToe {
     Creates a new instance with an empty game board of size `gridSize`
      
      - Parameters:
-        - gridSize: the number of cells in each of the grid's rows and columns
+        - size: the number of cells in each of the grid's rows and columns
      */
-    init(gridSize: Int) {
-        self.gridSize = gridSize
-        board = TicTacToe.emptyGameBoard(size: gridSize)
+    init(size: Int) {
+        self.size = size
+        board = TicTacToe.emptyGameBoard(size: size)
     }
     
     /**
@@ -160,7 +160,7 @@ struct TicTacToe {
     Resets the content of the game board, sets the current player to the default player and removes knowledge of previously taken moves
     */
     mutating func reset() {
-        board = TicTacToe.emptyGameBoard(size: gridSize)
+        board = TicTacToe.emptyGameBoard(size: size)
         currentPlayer = TicTacToe.defaultPlayer
         moves.removeAll()
         undoneMoves.removeAll()
