@@ -27,7 +27,6 @@ class ImageTicTacToeGame: ObservableObject {
     
     func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
         game.choose(cell: cell)
-        aiMove()
     }
     
     func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> Image? {
