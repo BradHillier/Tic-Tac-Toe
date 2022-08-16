@@ -18,13 +18,13 @@ struct TicTacToe {
     /// the `Player` who will take the first turn at the start of a new game
     static private let defaultPlayer: Player = .X
     
-    static private let WinCondition: Int = 3
+    let WinCondition: Int
     
     /// the `Player` who is currently taking a turn
     private(set) var currentPlayer = defaultPlayer
     
     /// the number of `Grid.Cell`'s contained in each row and column of the `Board`
-    private(set) var size: Int
+    let size: Int
     
     /// a `Grid` of `Player?` representing the state of the `TicTacToe` game
     private(set) var board: Board
@@ -46,8 +46,9 @@ struct TicTacToe {
      - Parameters:
         - size: the number of cells in each of the grid's rows and columns
      */
-    init(size: Int) {
+    init(size: Int, winCondition: Int = 3) {
         self.size = size
+        WinCondition = winCondition
         board = TicTacToe.emptyGameBoard(size: size)
     }
     
@@ -139,7 +140,7 @@ struct TicTacToe {
         
         for path in possibleWinPaths {
             let (player, count) = maxPlayerOccurences(in: path)
-            if count >= TicTacToe.WinCondition {
+            if count >= WinCondition {
                 return player
             }
         }
