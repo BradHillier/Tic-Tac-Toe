@@ -10,12 +10,13 @@ import SwiftUI
 
 class ImageTicTacToeGame: ObservableObject {
     @Published private var game: TicTacToe
+    let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 5)
+        game = TicTacToe(size: 3, winCondition: 3)
+        bot = TicTacToeBot(MaxDepth: 4)
     }
     
-    var bot = TicTacToeBot()
     
     var size: Int { return game.size }
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.cells }
