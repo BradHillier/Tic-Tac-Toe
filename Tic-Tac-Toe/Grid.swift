@@ -46,12 +46,12 @@ struct Grid<Content> {
     
     /// returns true if all cells in the grid contain `Content`; otherwise false
     func isFull() -> Bool {
-        return cells.allSatisfy({ $0.content != nil })
+        return cells.allSatisfy { $0.content != nil }
     }
 
     /// returns true if no cells in the grid contain `Content`; otherwise false
     func isEmpty() -> Bool {
-        return cells.allSatisfy({ $0.content == nil })
+        return cells.allSatisfy { $0.content == nil }
     }
     
     /// Returns a an array representation of the grids rows
@@ -69,7 +69,7 @@ struct Grid<Content> {
         for row in 0..<size {
             start = size * row
             end = size * (row + 1)
-            rows.append(cells.filter({ start <= $0.id && $0.id < end }) )
+            rows.append(cells.filter { start <= $0.id && $0.id < end } )
         }
         return rows
     }
@@ -80,7 +80,7 @@ struct Grid<Content> {
         var columns = [[Cell]]()
         
         for column in 0..<size {
-            columns.append(cells.filter({ ($0.id - column) % size == 0 }))
+            columns.append(cells.filter { ($0.id - column) % size == 0 } )
         }
         return columns
     }
