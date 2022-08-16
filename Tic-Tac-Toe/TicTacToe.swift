@@ -186,19 +186,21 @@ struct TicTacToe {
         /// the current number of consecutive occurences of some player
         var currentOccurences = 0
         
-        if var currentPlayer = group.first?.content {
-            for cell in group {
-                if cell.content == currentPlayer {
-                    currentOccurences += 1
-                    if currentOccurences > maxOccurences {
-                        maxOccurences = currentOccurences
-                        maxPlayer = currentPlayer
-                    }
-                } else {
+        var currentPlayer: Player?
+        
+        for cell in group {
+            if cell.content == currentPlayer {
+                currentOccurences += 1
+                if currentOccurences > maxOccurences {
+                    maxOccurences = currentOccurences
+                    maxPlayer = currentPlayer
+                }
+            } else {
+                if let player = cell.content {
                     currentOccurences = 1
-                    if let player = cell.content {
-                        currentPlayer = player
-                    }
+                    currentPlayer = player
+                } else {
+                    currentOccurences = 0
                 }
             }
         }
