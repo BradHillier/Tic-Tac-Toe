@@ -28,6 +28,8 @@ struct ContentView: View {
                 .foregroundColor(.primary)
             Spacer()
             GridView(game: game)
+                .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
+                
             Spacer(minLength: 70)
             ControlView(game: game)
     }
@@ -102,10 +104,19 @@ struct ControlView: View {
                 }
             }
             Spacer()
+            Button {
+                game.aiMove()
+            } label: {
+                VStack {
+                    Image(systemName: "square.grid.3x3")
+                    Text("AI move")
+                }
+            }
+            Spacer()
         }
         .padding()
         .controlSize(.large)
-    }
+        }
     }
 }
 
