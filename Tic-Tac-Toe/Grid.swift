@@ -114,18 +114,16 @@ struct Grid<Content> {
         /// First non-zero id in the top left to bottom right diagonal.
         let secondRowSecondColumnID = size + 1
         
-        /// First non-zero id in the bottom left to top right diagonal.
+        /// First non-zero id in the top right to bottom left diagonal.
         let topRightID = size - 1
         
-        let diagonalTopLeftToBottomRight = cells.filter({ cell in
-            cell.id % secondRowSecondColumnID == 0
-        })
-        let diagonalBottomLeftToTopRight = cells.filter({ cell in
-            cell.id != 0 &&
-            cell.id % topRightID == 0 &&
-            cell.id <= topRightID * size
-        })
-        return [diagonalTopLeftToBottomRight, diagonalBottomLeftToTopRight]
+        let diagonalTopLeftToBottomRight = cells.filter { $0.id % secondRowSecondColumnID == 0 }
+        
+        // exclude the first and last element from filter as their id will always be congruent to the diagonals
+        // first non-zero id, but are not part of the diagonal
+        let diagonalTopRightToBottomLeft = cells[1..<cells.count - 1].filter { $0.id % topRightID == 0 }
+        
+        return [diagonalTopLeftToBottomRight, diagonalTopRightToBottomLeft]
     }
     
     /**
