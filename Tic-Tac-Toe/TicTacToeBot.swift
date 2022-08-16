@@ -13,29 +13,50 @@ extension TicTacToe {
     
     var lastMove: Board.Cell? { self.moves.last }
     
-    func display(_ scores: [(Board.Cell, Int)]?) {
+    func display(_ scores: [(Board.Cell, Int, Int)]?) {
         
         var copy = scores
         
         for row in board.rows() {
-            print("-------")
+            print("-------------------------")
+            print("|   |    |    |    |    |")
             row.forEach{ cell in
                 print("|", terminator: "")
                 if let content = cell.content {
-                    let repr = content == .X ? "X" : "O"
+                    let repr = content == .X ? "  X  " : "  O  "
                     print(repr, terminator: "")
                 } else {
                     if let repr = copy?.remove(at: 0) {
-                        print(repr.1, terminator: "")
+                        print((repr.1), terminator: "")
                     } else {
                         print(" ", terminator: "")
                     }
                 }
             }
             print("|")
+        print("|   |    |    |    |    |")
         }
-        print("-------")
+        print("-------------------------")
     }
+    
+    func display() {
+    
+    for row in board.rows() {
+        print("-------")
+        row.forEach{ cell in
+            print("|", terminator: "")
+            if let content = cell.content {
+                let repr = content == .X ? "X" : "O"
+                print(repr, terminator: "")
+            } else {
+                print(" ", terminator: "")
+            }
+        }
+        print("|")
+    }
+    print("-------")
+}
+
 }
 
 
@@ -45,7 +66,7 @@ struct TicTacToeBot {
     typealias Game = Grid<TicTacToe.Player?>
     
     // the maximum depth of the search tree
-    let MaxDepth = 1
+    let MaxDepth: Int
    
     /**
     returns the optimal move for the provided games current player
@@ -60,11 +81,16 @@ struct TicTacToeBot {
         /// the heuristic value of the move currently being explored
         var moveValue: Int
         
+        var depthFound: Int
+        
         /// array of available moves and their heuristic value
-        var scores = Array<(Game.Cell, Int)>()
+        var scores = Array<(Game.Cell, Int, Int)>()
         
         /// a mutable copy of the provided TicTacToe game
         var copy: TicTacToe
+        
+        var maxValue = Int.min
+        var minValue = Int.max
         
         if game.isTerminal() {
             return nil
@@ -72,14 +98,27 @@ struct TicTacToeBot {
         for move in game.availableMoves {
             copy = game
             if copy.choose(cell: move) {
-                moveValue = getValue(of: copy, depth: MaxDepth)
-                scores.append( (move, moveValue) )
+                (moveValue, depthFound) = getValue(of: copy, highest: maxValue, lowest: minValue)
+                if moveValue > maxValue {
+                    maxValue = moveValue
+                } else if moveValue < minValue {
+                   minValue = moveValue
+                }
+                scores.append( (move, moveValue, depthFound) )
             }
+        }
+        if scores.allSatisfy({ $0.1 == scores.first?.1}) {
+            scores = game.availableMoves.map({ move in
+                var copy = game
+                copy.choose(cell: move)
+                return (move, moveUtility(copy), 1)
+            })
         }
         // shuffling before sorting results in scores of the same value appearing
         // in random order once sorted
+        game.display(scores)
         scores.shuffle()
-        scores.sort(by: {$0.1 > $1.1} )
+        scores.sort { $0.1 > $1.1 }
         return game.currentPlayer == .X ? scores.first!.0 : scores.last!.0
     }
     /**
@@ -87,43 +126,107 @@ struct TicTacToeBot {
      
      higher outputs indicate the state of the game favors .X, while lower outputs indicate the state favors .O
      
-    - Returns: the heuristic value of `game`  after `depth` number of turns, assuming both players continue to play optimally;
+    - Returns:
+     a tuple containing:
+        0) the heuristic value of `game`  after `depth` number of turns, assuming both players continue to play optimally;
+        1) the number of moves ahead the heuristic was taken
     - Parameters:
         - game: the `TicTacToe` game whose state will be transformed into a heuristic value
     */
-    private func getValue(of game: TicTacToe, depth: Int) -> Int {
+    private func getValue(of game: TicTacToe, depth: Int=1, highest: Int, lowest: Int) -> (Int, Int) {
+    
+    /// a mutable copy of the provided TicTacToe game
+    var copy: TicTacToe
         
-        /// used to find the heuristic of the move currently being looked at
-        let minOrMax: (Int, Int) -> Int = game.currentPlayer == .X ? max : min
+    var moveValue: Int
         
-        /// defaults to negative infinity when representing current maximum value and infinity when representing current minimum value
-        ///  represents the current largest heuristic found when current player is .X
-        ///  or the small heuristic value found when current player is .O
-        var currentValue = game.currentPlayer == .X ? Int.min: Int.max
+    var depthFound: Int = depth
+    
+    if depth >= MaxDepth || game.isTerminal() {
+        return (utility(of: game, movesAway: depth), depth)
+    }
+    switch game.currentPlayer {
         
-        /// a mutable copy of the provided TicTacToe game
-        var copy: TicTacToe
+    /// the player trying to maximize the board heuristic
+    case .X:
+        var maximumGuaranteedValue = Int.min
         
-        if depth == 0 || game.isTerminal() {
-            return utility(of: game)
-        }
         for move in game.availableMoves {
             copy = game
             if copy.choose(cell: move) {
-                currentValue = minOrMax(currentValue, getValue(of: copy, depth: depth-1))
+                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: maximumGuaranteedValue, lowest: lowest)
+                maximumGuaranteedValue = max(maximumGuaranteedValue, moveValue)
+                if lowest < maximumGuaranteedValue {
+                    break
+                }
             }
         }
-        return currentValue
+        return (maximumGuaranteedValue, depthFound)
+        
+    /// the player trying to minimize the heuristic
+    case .O:
+        var minimumGuaranteedValue = Int.max
+        
+        for move in game.availableMoves {
+            copy = game
+            if copy.choose(cell: move) {
+                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: highest, lowest: minimumGuaranteedValue)
+                minimumGuaranteedValue = min(minimumGuaranteedValue, moveValue)
+                
+                /// assuming the X player is playing optimally, this branch of the game is unlikely to be created, and thus, isn't worth further exploration.
+                if highest > minimumGuaranteedValue {
+                    break
+                }
+            }
+        }
+        return (minimumGuaranteedValue, depthFound)
     }
+}
     
     /// Returns the heuristic value of `board`'s current state
-    private func utility(of board: TicTacToe) -> Int {
+    private func utility(of board: TicTacToe, movesAway: Int) -> Int {
+        
         if let winner = board.winner() {
             switch winner {
-                case .X: return 1
-                case .O: return -1
+                case .X:
+                return 10000 + (winner == .X ? -movesAway : movesAway)
+                case .O:
+                return -10000 - (winner == .O ? movesAway : -movesAway)
             }
         }
         return 0
+    }
+    
+    private func moveUtility(_ game: TicTacToe) -> Int {
+        
+        let lanes = game.board.rows() + game.board.columns() + game.board.diagonals()
+        
+        let lanesContainingMove = lanes.filter { $0.contains { cell in cell.id == game.lastMove!.id } }
+        
+        var score = 0
+        
+        lanesContainingMove.forEach { lane in
+            let playerCount = lane.filter({ $0.content != nil }).count
+            let currPlayerCount = lane.filter({ $0.content == game.currentPlayer }).count
+            let previousPlayerCount = lane.filter({ $0.content == !game.currentPlayer }).count
+            
+            if playerCount == 1 {
+                score += 1
+            } else if playerCount == 2 {
+                score += 10
+            } else {
+                score += 100
+            }
+            if previousPlayerCount == playerCount || currPlayerCount ==  playerCount - 1 {
+                score += 100 * playerCount
+            }
+            if currPlayerCount >= game.WinCondition - 1 {
+                score += 500
+            }
+            if game.winner() == game.lastMove!.content {
+                score += 1000
+            }
+        }
+        return game.moves.last?.content == .X ? score : -score
     }
 }
