@@ -74,20 +74,24 @@ struct TicTacToeGameView: View {
     struct ControlView: View {
         var game: ImageTicTacToeGame
         
-        init(game: ImageTicTacToeGame) {
-            self.game = game
-        }
-        
         var body: some View {
             HStack {
                 Spacer()
-                Button(action: game.reset) { label("restart", symbol: "restart") }
+                Button(action: game.reset) {
+                    ControlView.label("restart", icon: "restart")
+                }
                 Spacer()
-                Button(action: game.undo) { label("undo", symbol: "arrow.uturn.backward") }
+                Button(action: game.undo) {
+                    ControlView.label("undo", icon: "arrow.uturn.backward")
+                }
                 Spacer()
-                Button(action: game.redo) { label("redo", symbol: "arrow.uturn.forward") }
+                Button(action: game.redo) {
+                    ControlView.label("redo", icon: "arrow.uturn.forward")
+                }
                 Spacer()
-                Button(action: game.aiMove) { label("AI move", symbol: "brain.head.profile") }
+                Button(action: game.aiMove) {
+                    ControlView.label("AI move", icon: "brain.head.profile")
+              }
                 Spacer()
             }
             .padding()
@@ -96,9 +100,9 @@ struct TicTacToeGameView: View {
         }
         
         @ViewBuilder
-        private func label(_ text: String, symbol: String) -> some View {
+        static private func label(_ text: String, icon: String) -> some View {
             VStack {
-                Image(systemName: symbol)
+                Image(systemName: icon)
                 Text(text)
             }
         }
