@@ -28,8 +28,6 @@ struct TicTacToeGameView: View {
             .foregroundColor(.primary)
             Spacer()
             GridView(game: game)
-                .padding(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-            
             Spacer(minLength: 70)
             ControlView(game: game)
         }
@@ -39,17 +37,39 @@ struct TicTacToeGameView: View {
         @ObservedObject var game: ImageTicTacToeGame
         
         var body: some View {
-            LazyVGrid (columns: Array(repeating: GridItem(), count: game.size), spacing: 8) {
-                ForEach(game.board) { cell in
-                    CellView(player: cell)
-                        .aspectRatio(1/1, contentMode: .fit)
-                        .onTapGesture {
-                            game.choose(cell)
-                        }
+            ZStack {
+                Spacer()
+                LazyVGrid (columns: Array(repeating: GridItem(), count: game.size), spacing: 8) {
+                    ForEach(game.board) { cell in
+                        CellView(player: cell)
+                            .aspectRatio(1/1, contentMode: .fit)
+                            .onTapGesture {
+                                game.choose(cell)
+                            }
+                    }
+                }
+                .background(.primary)
+                .overlay(winAnimation(game: game))
+            }
+            .padding()
+        }
+    }
+    
+    struct winAnimation: View {
+        @ObservedObject var game: ImageTicTacToeGame
+        
+        var body: some View {
+            if game.winner != nil {
+                GeometryReader { geometry in
+                    let (startP, endP) = game.getLinePositions(
+                        width: geometry.size.width, height: geometry.size.height)
+                    Path() { path in
+                        path.move(to: startP)
+                        path.addLine(to: endP)
+                    }
+                    .stroke(.red, style: StrokeStyle(lineWidth: 15, lineCap: .round))
                 }
             }
-            .background(.primary)
-            .padding()
         }
     }
     
@@ -127,6 +147,10 @@ struct TicTacToeGameView: View {
                 .foregroundColor(.blue)
         }
     }
+    
+    
+    
+    
     
     
     
