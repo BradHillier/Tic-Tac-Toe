@@ -7,16 +7,18 @@
 
 import Foundation
 
+/// - Bug: potential for bugs caused by assuming a  `Cell`'s id is equivalent to it's positions in the cells array
 struct Grid<Content> {
     
     
-    // An array of the grids cell s
+    /// Cells stored by their id property in increasing order; a `Cell`'s id should be equivalent to it's index
     private(set) var cells: Array<Cell>
     
     // The numbers of cells in each grid row and column
     private let size: Int
     
-    struct Cell: Identifiable {
+    struct Cell: Identifiable, Equatable {
+        
         /* only grid should need to see the id and content*/
         private(set) var id: Int
         private(set) var row: Int
@@ -26,6 +28,10 @@ struct Grid<Content> {
         
         func isEmpty() -> Bool {
             return content == nil
+        }
+        
+        static func ==(lhs: Grid<Content>.Cell, rhs: Grid<Content>.Cell) -> Bool {
+            return lhs.id == rhs.id
         }
     }
     
@@ -38,8 +44,8 @@ struct Grid<Content> {
         for number in 0..<size * size {
             cells.append(
                 Cell(id: number,
-                     row: number % size,
-                     column: Int(number / size)
+                     row: Int(number / size),
+                     column: number % size
                     ))
         }
     }
@@ -88,42 +94,90 @@ struct Grid<Content> {
     /**
      Returns the grids two corner diagonals represented by an array of `Cell`'s.
      
-     Modular arithmetic is utilized to find cells belonging to a diagonal. All cells in a diagonal wil be congruent to
-     the diagonals first non-zero ID mod( the size of the grid - 1 )
-     for example:
-     on a 3x3 grid the cell id's will be as follows
-     
-            ------------- 
-            | 0 | 1 | 2 |
-            -------------
-            | 3 | 4 | 5 |
-            -------------
-            | 6 | 7 | 8 |
-            -------------
-     
-     Here, `2` is the first non-zero id for the top right to bottom left diagonal, which is equivalent to `size` - 1.
-     every other id in the diagonal (4, 6) are all congruent to 2 mod(3).
-     or more generically every id in the diagonal is congruent to.
-        `size` - 1 mod( size )
-     on the
-     in the case of the first and last cells in the grid
-     the first cell will always have an id of 0 and the last cell will always be congruent
+     - Bug: This currently creates two of both diagonals containing the top corners
      */
     func diagonals() -> [[Cell]] {
+        var diagonals = [Array<Cell>]()
         
-        /// First non-zero id in the top left to bottom right diagonal.
-        let secondRowSecondColumnID = size + 1
+        if let firstColumn = columns().first {
+            for cell in firstColumn {
+                diagonals.append(getDiagonal(of: cell, slope: .positive))
+                diagonals.append(getDiagonal(of: cell, slope: .negative))
+            }
+        }
         
-        /// First non-zero id in the top right to bottom left diagonal.
-        let topRightID = size - 1
+        if let lastColumn = columns().last {
+            for cell in lastColumn {
+                diagonals.append(getDiagonal(of: cell, slope: .positive))
+                diagonals.append(getDiagonal(of: cell, slope: .negative))
+            }
+        }
+        return diagonals
+    }
+    
+    enum Slope {
+        case negative, positive
+    }
+
+    /**
+     Returns all cells in the diagonal sloping downward to the right which contains the provided cell
+     
+     - Parameters:
+        - cell: the cell which is contained in the diagonal to be constructed
+        - slope: 
+     
+     - Note: This method relies heavily on the fact that a `Cell`'s index in `cells` is equivalent to it's `id`
+    */
+    func getDiagonal(of cell: Cell, slope: Slope ) -> [Cell] {
         
-        let diagonalTopLeftToBottomRight = cells.filter { $0.id % secondRowSecondColumnID == 0 }
+        /// distance between the `id`'s of cells belonging to the diagonals
+        let delta: Int
         
-        // exclude the first and last element from filter as their id will always be congruent to the diagonals
-        // first non-zero id, but are not part of the diagonal
-        let diagonalTopRightToBottomLeft = cells[1..<cells.count - 1].filter { $0.id % topRightID == 0 }
+        /// maximum possible index of a `Cell` within the constructed diagonal array
+        let maxIndex: Int
         
-        return [diagonalTopLeftToBottomRight, diagonalTopRightToBottomLeft]
+        /// distance from `cell` to either the top left cell if `slope.positive` or
+        /// top right cell if `slope.negative` stepping diagonally, vertically or horizonatally
+        let distanceToTopCorner: Int
+        
+        /// index of `cell` in the constructed diagonal array if it is sorted by id from lowest to highest
+        let indexInDiagonal: Int
+        
+        /// the number of cells appearing downward and to the right of `cell`
+        let numCellsAfterProvided: Int
+        
+        /// index of the cell with the lowest id in the diagonal
+        let firstIndex: Int
+        
+        /// index in `cells` with the highest id in the diagonal being created
+        let lastIndex: Int
+        
+        var diagonal = Array<Cell>()
+        
+        /// index in `cells` of `Cell` currently being added to `rightDiagonal`
+        var currentIndex: Int
+        
+        maxIndex = size - 1
+        switch slope {
+        case .positive:
+            distanceToTopCorner = cell.column
+            delta = size + 1
+        case .negative:
+            distanceToTopCorner = maxIndex - cell.column
+            delta = size - 1
+        }
+        indexInDiagonal = min(distanceToTopCorner, cell.row)
+        numCellsAfterProvided = maxIndex - max(distanceToTopCorner, cell.row)
+        
+        firstIndex = cell.id - indexInDiagonal * delta
+        lastIndex = cell.id + numCellsAfterProvided * delta
+        
+        currentIndex = firstIndex
+        while currentIndex <= lastIndex {
+            diagonal.append(cells[currentIndex])
+            currentIndex += delta
+        }
+        return diagonal
     }
     
     /**
