@@ -31,7 +31,9 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "180"
-            endingLineNumber = "180">
+            endingLineNumber = "180"
+            landmarkName = "getDiagonal(of:slope:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -45,7 +47,9 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "153"
-            endingLineNumber = "153">
+            endingLineNumber = "153"
+            landmarkName = "getDiagonal(of:slope:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -60,8 +64,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "102"
             endingLineNumber = "102"
-            landmarkName = "Grid"
-            landmarkType = "14">
+            landmarkName = "diagonals()"
+            landmarkType = "7">
             <Locations>
                <Location
                   uuid = "FE8B5AE2-2FA8-4FEB-A131-35569915A888 - 62dc2e809b42d540"
@@ -108,8 +112,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "109"
             endingLineNumber = "109"
-            landmarkName = "Grid"
-            landmarkType = "14">
+            landmarkName = "diagonals()"
+            landmarkType = "7">
             <Locations>
                <Location
                   uuid = "BA28898C-AEAB-4C89-8C46-A7CDAD50AE76 - 62dc2e809b42d439"
