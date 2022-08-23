@@ -27,7 +27,7 @@ struct TicTacToeGameView: View {
             .font(.largeTitle)
             .foregroundColor(.primary)
             Spacer()
-            GridView(game: game)
+            GridView(game: game).padding()
             Spacer(minLength: 70)
             ControlView(game: game)
         }
@@ -37,21 +37,17 @@ struct TicTacToeGameView: View {
         @ObservedObject var game: ImageTicTacToeGame
         
         var body: some View {
-            ZStack {
-                Spacer()
-                LazyVGrid (columns: Array(repeating: GridItem(), count: game.size), spacing: 8) {
-                    ForEach(game.board) { cell in
-                        CellView(player: cell)
-                            .aspectRatio(1/1, contentMode: .fit)
-                            .onTapGesture {
-                                game.choose(cell)
-                            }
-                    }
+            LazyVGrid (columns: Array(repeating: GridItem(), count: game.size)) {
+                ForEach(game.board) { cell in
+                    CellView(player: cell)
+                        .aspectRatio(1/1, contentMode: .fill)
+                        .onTapGesture {
+                            game.choose(cell)
+                        }
                 }
-                .background(.primary)
-                .overlay(winAnimation(game: game))
             }
-            .padding()
+            .background(.primary)
+            .overlay(winAnimation(game: game))
         }
     }
     
@@ -67,7 +63,7 @@ struct TicTacToeGameView: View {
                         path.move(to: startP)
                         path.addLine(to: endP)
                     }
-                    .stroke(.red, style: StrokeStyle(lineWidth: 15, lineCap: .round))
+                    .stroke(.red, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 }
             }
         }
