@@ -53,8 +53,10 @@ struct lineAnimation: View {
     func getLinePositions(in geometry: GeometryProxy, from beginning: CGPoint = CGPoint(x: 0,y: 0), to end: CGPoint = CGPoint(x: 0,y: 0)) -> (start: CGPoint, end: CGPoint) {
         var start: (row: Int, col: Int)
         var finish: (row: Int, col: Int)
+        
         start = (row: Int(beginning.x), col: Int(beginning.y))
         finish = (row: Int(end.x), col: Int(end.y))
+        
         let deltaX = finish.col - start.col
         let deltaY = finish.row - start.row
         
@@ -63,12 +65,33 @@ struct lineAnimation: View {
         let cellSize = minDimension / game.size
         let gridStartY = (maxDimension - minDimension) / 2
         
-        let startX = (cellSize * start.col) + (cellSize / 2)
-        let startY = gridStartY + cellSize / 2 + cellSize * start.row
+        var startX = (cellSize * start.col) + (cellSize / 2)
+        var startY = gridStartY + cellSize / 2 + cellSize * start.row
         
-        let endX = startX + deltaX * cellSize
-        let endY = startY + deltaY * cellSize
+        var endX = startX + deltaX * cellSize
+        var endY = startY + deltaY * cellSize
         
+        let slope = finish.col - start.col != 0 ? (finish.row - start.row) / (finish.col - start.col) : nil
+        if let slope {
+            if slope == 0 {
+                startX -= cellSize / 2
+                endX += cellSize / 2
+            } else if slope == -1 {
+                startX += cellSize / 2
+                startY -= cellSize / 2
+                endX -= cellSize / 2
+                endY += cellSize / 2
+            } else if slope == 1 {
+                startX -= cellSize / 2
+                startY -= cellSize / 2
+                endX += cellSize / 2
+                endY += cellSize / 2
+            }
+            
+        } else {
+            startY -= cellSize / 2
+            endY += cellSize / 2
+        }
         return (start: CGPoint(x: startX, y: startY), end: CGPoint(x: endX, y: endY))
     }
 }
