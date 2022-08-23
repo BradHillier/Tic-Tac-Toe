@@ -13,8 +13,8 @@ class ImageTicTacToeGame: ObservableObject {
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 4, winCondition: 3)
-        bot = TicTacToeBot(MaxDepth: 4)
+        game = TicTacToe(size: 5, winCondition: 3)
+        bot = TicTacToeBot(MaxDepth: 0)
     }
     
     
@@ -63,8 +63,8 @@ class ImageTicTacToeGame: ObservableObject {
         var end: (row: Int, col: Int)
         
         if let cells = game.winningCells() {
-            start = (row: cells.first!.column, col: cells.first!.row)
-            end = (row: cells.last!.column, col: cells.last!.row)
+            start = (row: cells.first!.row, col: cells.first!.column)
+            end = (row: cells.last!.row, col: cells.last!.column)
         } else {
             /// - ToDo: remove this
             start = (row: 0, col: 0)

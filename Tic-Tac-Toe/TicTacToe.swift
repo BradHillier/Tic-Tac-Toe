@@ -141,22 +141,22 @@ struct TicTacToe {
         let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
         
         for path in possibleWinPaths {
-            if let slice = maxPlayerOccurences(in: path) {
-                if slice.count >= WinCondition {
-                    if let player = slice.first?.content {
-                        return player
-                    }
+            let slice = longestPlayerSubArray(in: path)
+            if slice.count >= WinCondition {
+                if let player = slice.first?.content {
+                    return player
                 }
             }
         }
         return nil
     }
     
-    func winningCells() -> ArraySlice<Board.Cell>? {
+    func winningCells() -> Array<Board.Cell>? {
         let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
         
         for path in possibleWinPaths {
-            if let slice = maxPlayerOccurences(in: path) {
+            let slice = longestPlayerSubArray(in: path)
+            if slice.count >= WinCondition {
                 return slice
             }
         }
@@ -189,59 +189,34 @@ struct TicTacToe {
     - Complexity:
     O(n), where n is the number of `Cell`'s in the provided `group`
      
-    - Todo:  add labels to the return values in the tuple
-     
     - Parameters:
         - group: the group in which to count consecutive cells containing the same player
-     
     */
-    func maxPlayerOccurences(in group: Array<Board.Cell>) -> ArraySlice<Board.Cell>? {
-        
-        /// the current greatest number of consecutive occurences of any player in the provided `group`
-        var maxOccurences = 0
-        
-        /// the player who has currently appeared consecutively the greatest number of times
-        var maxPlayer: Player?
-        
-        /// the current number of consecutive occurences of some player
-        var currentOccurences = 0
+    private func longestPlayerSubArray(in group: Array<Board.Cell>) -> Array<Board.Cell> {
         
         var currentPlayer: Player?
         
-        var start: Int?
-        var end: Int?
+        var cells = Array<Board.Cell>()
+        var maxSlice = Array<Board.Cell>()
         
-        var maxStart: Int?
-        var maxEnd: Int?
-        
-        for (index, cell) in group.enumerated() {
+        for cell in group {
             if cell.content == currentPlayer {
-                currentOccurences += 1
-                if currentOccurences > maxOccurences {
-                    maxOccurences = currentOccurences
-                    maxPlayer = currentPlayer
-                    maxStart = start
-                }
+                cells.append(cell)
             } else {
+                if cells.count > maxSlice.count {
+                    maxSlice = cells
+                }
+                cells.removeAll()
                 if let player = cell.content {
-                    currentOccurences = 1
                     currentPlayer = player
-                    start = index
-                } else {
-                    currentOccurences = 0
+                    cells.append(cell)
                 }
             }
-            end = index
-            if currentOccurences == maxOccurences {
-                maxEnd = end
-            }
         }
-        if let s = maxStart {
-            if let e = maxEnd {
-                return group[s...e]
-            }
+        if cells.count > maxSlice.count {
+            maxSlice = cells
         }
-        return nil
+        return maxSlice
     }
     
     /// Represents either the X player or the O player in a game of Tictactoe
