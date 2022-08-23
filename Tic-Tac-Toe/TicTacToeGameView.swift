@@ -10,6 +10,11 @@ import SwiftUI
 struct TicTacToeGameView: View {
     @ObservedObject var game = ImageTicTacToeGame()
     
+    private struct Constants {
+        static let gridLineWidth: CGFloat = 10
+        static let winLineWidth: CGFloat = 10
+    }
+    
     var body: some View {
         VStack {
             Spacer()
@@ -27,7 +32,7 @@ struct TicTacToeGameView: View {
             .font(.largeTitle)
             .foregroundColor(.primary)
             Spacer()
-            GridView(game: game).padding()
+            GridView(game: game).padding(.all, 50)
             Spacer(minLength: 70)
             ControlView(game: game)
         }
@@ -37,7 +42,7 @@ struct TicTacToeGameView: View {
         @ObservedObject var game: ImageTicTacToeGame
         
         var body: some View {
-            LazyVGrid (columns: Array(repeating: GridItem(), count: game.size)) {
+            LazyVGrid (columns: Array(repeating: gridCell(), count: game.size), spacing: 0) {
                 ForEach(game.board) { cell in
                     CellView(player: cell)
                         .aspectRatio(1/1, contentMode: .fill)
@@ -47,9 +52,42 @@ struct TicTacToeGameView: View {
                 }
             }
             .background(.primary)
+            .overlay(lines(game: game, size: game.size))
             .overlay(winAnimation(game: game))
         }
+        
+        private func gridCell() -> GridItem {
+            var gridItem = GridItem()
+            gridItem.spacing = 0
+            return gridItem
+        }
     }
+    
+    struct lines: View {
+        let game: ImageTicTacToeGame
+        let size: Int
+        
+        let lineWidth: CGFloat = 10
+        
+        var body: some View {
+            GeometryReader { geometry in
+                let cellSize = geometry.size.width / CGFloat(game.size)
+                
+                 ForEach(1..<game.size) { n in
+                     Path() { path in
+                         path.move(to: CGPoint(x: 0, y: cellSize * CGFloat(n) ))
+                         path.addLine(to: CGPoint(x: geometry.size.width, y: cellSize * CGFloat(n)))
+                     }
+                     .stroke(style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
+                     Path() { path in
+                         path.move(to: CGPoint(x: cellSize * CGFloat(n), y: 0))
+                         path.addLine(to: CGPoint(x: cellSize * CGFloat(n), y: geometry.size.height))
+                     }
+                     .stroke(style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
+                 }
+             }
+         }
+     }
     
     struct winAnimation: View {
         @ObservedObject var game: ImageTicTacToeGame
@@ -63,7 +101,7 @@ struct TicTacToeGameView: View {
                         path.move(to: startP)
                         path.addLine(to: endP)
                     }
-                    .stroke(.red, style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    .stroke(.red, style: StrokeStyle(lineWidth: Constants.winLineWidth, lineCap: .round))
                 }
             }
         }

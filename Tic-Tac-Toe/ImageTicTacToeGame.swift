@@ -13,8 +13,8 @@ class ImageTicTacToeGame: ObservableObject {
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 5, winCondition: 3)
-        bot = TicTacToeBot(MaxDepth: 0)
+        game = TicTacToe(size: 3, winCondition: 3)
+        bot = TicTacToeBot(MaxDepth: 1)
     }
     
     
@@ -76,7 +76,7 @@ class ImageTicTacToeGame: ObservableObject {
         let minDimension = Int(min(width, height))
         let maxDimension = Int(max(width, height))
         let cellSize = minDimension / game.size
-        let gridStartY = maxDimension - minDimension
+        let gridStartY = (maxDimension - minDimension) / 2
         
         let startX = (cellSize * start.col) + (cellSize / 2)
         let startY = gridStartY + cellSize / 2 + cellSize * start.row
