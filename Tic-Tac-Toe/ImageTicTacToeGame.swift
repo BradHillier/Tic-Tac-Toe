@@ -13,8 +13,8 @@ class ImageTicTacToeGame: ObservableObject {
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 3, winCondition: 3)
-        bot = TicTacToeBot(MaxDepth: 1)
+        game = TicTacToe(size: 10, winCondition: 3)
+        bot = TicTacToeBot(MaxDepth: 0)
     }
     
     
@@ -55,36 +55,13 @@ class ImageTicTacToeGame: ObservableObject {
         default:
             return nil
         }
-        
     }
     
-    func getLinePositions(width: CGFloat, height: CGFloat) -> (start: CGPoint, end: CGPoint) {
-        var start: (row: Int, col: Int)
-        var end: (row: Int, col: Int)
-        
-        if let cells = game.winningCells() {
-            start = (row: cells.first!.row, col: cells.first!.column)
-            end = (row: cells.last!.row, col: cells.last!.column)
-        } else {
-            /// - ToDo: remove this
-            start = (row: 0, col: 0)
-            end = (row: 0, col: 0)
-        }
-        let deltaX = end.col - start.col
-        let deltaY = end.row - start.row
-        
-        let minDimension = Int(min(width, height))
-        let maxDimension = Int(max(width, height))
-        let cellSize = minDimension / game.size
-        let gridStartY = (maxDimension - minDimension) / 2
-        
-        let startX = (cellSize * start.col) + (cellSize / 2)
-        let startY = gridStartY + cellSize / 2 + cellSize * start.row
-        
-        let endX = startX + deltaX * cellSize
-        let endY = startY + deltaY * cellSize
-        
-        return (start: CGPoint(x: startX, y: startY), end: CGPoint(x: endX, y: endY))
+    func getWinLineEndPoints() -> (CGPoint, CGPoint) {
+        let cells = game.winningCells()
+        let start = CGPoint(x: cells?.first?.row ?? 0, y: cells?.first?.column ?? 0)
+        let end = CGPoint(x: cells?.last?.row ?? 0, y: cells?.last?.column ?? 0)
+        return (start, end)
     }
     
     func aiMove() {

@@ -132,8 +132,9 @@ struct TicTacToe {
      - Complexity:
      O(n), where n is the number of possible win paths
      
-    - Note:
+    - Todo:
      This could be made faster by by checking for either winner on a single pass of the possible win paths.
+     check the all the paths off the most recently made move
     */
     func winner() -> Player? {
         

@@ -11,8 +11,11 @@ struct TicTacToeGameView: View {
     @ObservedObject var game = ImageTicTacToeGame()
     
     private struct Constants {
-        static let gridLineWidth: CGFloat = 10
-        static let winLineWidth: CGFloat = 10
+        static let gridLineWidth: CGFloat = 3
+        static let gridLineColour: Color = .gray
+        static let winLineWidth: CGFloat = 5
+        static let playerXColor: Color = .blue
+        static let playerYColor: Color = .red
     }
     
     var body: some View {
@@ -41,19 +44,27 @@ struct TicTacToeGameView: View {
     struct GridView: View {
         @ObservedObject var game: ImageTicTacToeGame
         
+        
         var body: some View {
+            let (start, end) = game.getWinLineEndPoints()
             LazyVGrid (columns: Array(repeating: gridCell(), count: game.size), spacing: 0) {
                 ForEach(game.board) { cell in
                     CellView(player: cell)
                         .aspectRatio(1/1, contentMode: .fill)
                         .onTapGesture {
-                            game.choose(cell)
+                            withAnimation {
+                                game.choose(cell)
+                            }
                         }
                 }
             }
-            .background(.primary)
-            .overlay(lines(game: game, size: game.size))
-            .overlay(winAnimation(game: game))
+                .overlay(lines(game: game, size: game.size))
+                .overlay(lineAnimation(game: game, start: start, end: end, color: {
+                    switch game.winner {
+                    case.X: return Constants.playerXColor
+                    case.O: return Constants.playerYColor
+                    default: return Color.clear
+                    }}()))
         }
         
         private func gridCell() -> GridItem {
@@ -78,34 +89,18 @@ struct TicTacToeGameView: View {
                          path.move(to: CGPoint(x: 0, y: cellSize * CGFloat(n) ))
                          path.addLine(to: CGPoint(x: geometry.size.width, y: cellSize * CGFloat(n)))
                      }
-                     .stroke(style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
+                         .stroke(Constants.gridLineColour,
+                             style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
                      Path() { path in
                          path.move(to: CGPoint(x: cellSize * CGFloat(n), y: 0))
                          path.addLine(to: CGPoint(x: cellSize * CGFloat(n), y: geometry.size.height))
                      }
-                     .stroke(style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
+                         .stroke(Constants.gridLineColour,
+                             style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
                  }
              }
          }
      }
-    
-    struct winAnimation: View {
-        @ObservedObject var game: ImageTicTacToeGame
-        
-        var body: some View {
-            if game.winner != nil {
-                GeometryReader { geometry in
-                    let (startP, endP) = game.getLinePositions(
-                        width: geometry.size.width, height: geometry.size.height)
-                    Path() { path in
-                        path.move(to: startP)
-                        path.addLine(to: endP)
-                    }
-                    .stroke(.red, style: StrokeStyle(lineWidth: Constants.winLineWidth, lineCap: .round))
-                }
-            }
-        }
-    }
     
     struct CellView: View {
         var player: Grid<TicTacToe.Player?>.Cell
@@ -168,7 +163,7 @@ struct TicTacToeGameView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .padding(20)
-                .foregroundColor(.red)
+                .foregroundColor(Constants.playerXColor)
         }
     }
     
@@ -178,7 +173,7 @@ struct TicTacToeGameView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .padding(15)
-                .foregroundColor(.blue)
+                .foregroundColor(Constants.playerYColor)
         }
     }
     

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9445490528B4D8C5004AAC25 /* winningLineShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9445490428B4D8C5004AAC25 /* winningLineShape.swift */; };
 		94895CBA2883E20F004F6ADD /* Tic_Tac_ToeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94895CB92883E20F004F6ADD /* Tic_Tac_ToeApp.swift */; };
 		94895CBC2883E20F004F6ADD /* TicTacToeGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94895CBB2883E20F004F6ADD /* TicTacToeGameView.swift */; };
 		94895CBE2883E211004F6ADD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 94895CBD2883E211004F6ADD /* Assets.xcassets */; };
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9445490428B4D8C5004AAC25 /* winningLineShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = winningLineShape.swift; sourceTree = "<group>"; };
 		94895CB62883E20F004F6ADD /* Tic-Tac-Toe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tic-Tac-Toe.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		94895CB92883E20F004F6ADD /* Tic_Tac_ToeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tic_Tac_ToeApp.swift; sourceTree = "<group>"; };
 		94895CBB2883E20F004F6ADD /* TicTacToeGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TicTacToeGameView.swift; sourceTree = "<group>"; };
@@ -63,6 +65,7 @@
 		94895CAD2883E20F004F6ADD = {
 			isa = PBXGroup;
 			children = (
+				9445490428B4D8C5004AAC25 /* winningLineShape.swift */,
 				94895CB82883E20F004F6ADD /* Tic-Tac-Toe */,
 				94895CD02883F550004F6ADD /* Tic-Tac-ToeTests */,
 				94895CB72883E20F004F6ADD /* Products */,
@@ -215,6 +218,7 @@
 				94895CBA2883E20F004F6ADD /* Tic_Tac_ToeApp.swift in Sources */,
 				94D6BEF028888FEE00CE17AB /* TicTacToeBot.swift in Sources */,
 				94895CDB28841266004F6ADD /* Grid.swift in Sources */,
+				9445490528B4D8C5004AAC25 /* winningLineShape.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
