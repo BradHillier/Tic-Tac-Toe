@@ -13,7 +13,7 @@ class ImageTicTacToeGame: ObservableObject {
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 10, winCondition: 3)
+        game = TicTacToe(size: 10, winCondition: 5)
         bot = TicTacToeBot(MaxDepth: 0)
     }
     

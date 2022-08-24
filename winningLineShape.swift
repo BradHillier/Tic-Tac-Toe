@@ -31,7 +31,7 @@ struct lineAnimation: View {
     
     @ObservedObject var game: ImageTicTacToeGame
     let color: Color
-   
+    
     @State var progress = CGFloat.zero
     
     var body: some View {
@@ -42,7 +42,7 @@ struct lineAnimation: View {
                     .trim(from: 0, to: progress)
                     .stroke(color, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .onAppear {
-                        withAnimation(.easeInOut) { progress = 1.0 }
+                        withAnimation(.easeInOut(duration: 0.5)) { progress = 1.0 }
                     }
             } else {
                 /// resets the animation when game isn't won
@@ -54,7 +54,7 @@ struct lineAnimation: View {
     private func getLinePositions(in geometry: GeometryProxy) -> Line {
         
         if let (startCell, endCell) = game.getWinLineEndPoints() {
-            let line = CGVector(dx: endCell.column - startCell.column, dy: endCell.row - startCell.row)
+            let gridVector = CGVector(dx: endCell.column - startCell.column, dy: endCell.row - startCell.row)
             
             let minDimension = min(geometry.size.width, geometry.size.height)
             let cellSize: CGFloat = minDimension / CGFloat(game.size)
@@ -64,37 +64,33 @@ struct lineAnimation: View {
                 y: cellSize / 2 + cellSize * CGFloat(startCell.row)
             )
             let end = CGPoint(
-                x: start.x + line.dx * cellSize,
-                y: start.y + line.dy * cellSize
+                x: start.x + gridVector.dx * cellSize,
+                y: start.y + gridVector.dy * cellSize
             )
-            let modifier = startCell.id > endCell.id ? CGFloat(cellSize / 2) : CGFloat(-(cellSize / 2))
-            
-            return addOffset(line: (start, end), on: line, amount: modifier)
+            return extendLine(from: start, to: end, by: cellSize / 2)
         }
         return (start: CGPoint(x: 0, y: 0), end: CGPoint(x: 0, y: 0))
     }
     
-    private func addOffset(line: Line, on vector: CGVector, amount: CGFloat ) -> Line {
-        var start = line.start
-        var end = line.end
+    private func extendLine(from start: CGPoint, to end: CGPoint, by amount: CGFloat ) -> Line {
+        var extendedStart = start
+        var extendedEnd = end
+        let line = CGVector(dx: end.x - start.x, dy: end.y - start.y)
         
-        if vector.dx == 0 {
-            start.y += amount
-            end.y -= amount
-        } else if vector.dy == 0 {
-            start.x += amount
-            end.x -= amount
-        } else if vector.dy / vector.dx > 0 {
-            start.x += amount
-            end.x -= amount
-            start.y += amount
-            end.y -= amount
-        } else {
-            start.x -= amount
-            end.x += amount
-            start.y += amount
-            end.y -= amount
+        if line.dx > 0 {
+            extendedStart.x -= amount
+            extendedEnd.x += amount
+        } else if line.dx < 0 {
+            extendedStart.x += amount
+            extendedEnd.x -= amount
         }
-        return (start: start, end: end)
+        if line.dy > 0 {
+            extendedStart.y -= amount
+            extendedEnd.y += amount
+        } else if line.dy < 0 {
+            extendedStart.y += amount
+            extendedEnd.y -= amount
+        }
+        return (start: extendedStart, end: extendedEnd)
     }
 }
