@@ -58,7 +58,13 @@ class ImageTicTacToeGame: ObservableObject {
     }
     
     func getWinLineEndPoints() -> (CGPoint, CGPoint) {
-        let cells = game.winningCells()
+        var cells = game.winningCells()
+        if (cells != nil) {
+            if cells?.first != game.lastMove {
+                let lastIndex = (cells?.count ?? 0) - 1
+                cells?.swapAt(0, lastIndex)
+            }
+        }
         let start = CGPoint(x: cells?.first?.row ?? 0, y: cells?.first?.column ?? 0)
         let end = CGPoint(x: cells?.last?.row ?? 0, y: cells?.last?.column ?? 0)
         return (start, end)

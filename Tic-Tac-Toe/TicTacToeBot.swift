@@ -9,9 +9,7 @@ import Foundation
 
 /// - Todo: Move to TicTacToe struct
 extension TicTacToe {
-    var availableMoves: [Board.Cell] { self.board.cells.filter({ $0.content == nil }) }
-    
-    var lastMove: Board.Cell? { self.moves.last }
+
     
     func display(_ scores: [(Board.Cell, Int, Int)]?) {
         

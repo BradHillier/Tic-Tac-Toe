@@ -41,6 +41,9 @@ struct TicTacToe {
         return emptyBoard
     }
     
+    var availableMoves: [Board.Cell] { self.board.cells.filter({ $0.content == nil }) }
+    
+    var lastMove: Board.Cell? { self.moves.last }
     
     /**
     Creates a new instance with an empty game board of size `gridSize`

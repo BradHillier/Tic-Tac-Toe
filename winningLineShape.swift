@@ -72,25 +72,36 @@ struct lineAnimation: View {
         var endY = startY + deltaY * cellSize
         
         let slope = finish.col - start.col != 0 ? (finish.row - start.row) / (finish.col - start.col) : nil
+        let startID = start.row * game.size + start.col
+        let finishID = finish.row * game.size + finish.col
+        
+        let sign = {
+            if startID > finishID {
+                return 1
+            }
+            return -1
+        }()
+        
+        /// adjusts line depending on the slope of the winning cells
         if let slope {
             if slope == 0 {
-                startX -= cellSize / 2
-                endX += cellSize / 2
+                startX += cellSize / 2 * sign
+                endX += cellSize / 2 * -sign
             } else if slope == -1 {
-                startX += cellSize / 2
-                startY -= cellSize / 2
-                endX -= cellSize / 2
-                endY += cellSize / 2
+                startX += cellSize / 2 * -sign
+                startY += cellSize / 2 * sign
+                endX += cellSize / 2 * sign
+                endY += cellSize / 2 * -sign
             } else if slope == 1 {
-                startX -= cellSize / 2
-                startY -= cellSize / 2
-                endX += cellSize / 2
-                endY += cellSize / 2
+                startX += cellSize / 2 * sign
+                startY += cellSize / 2 * sign
+                endX += cellSize / 2 * -sign
+                endY += cellSize / 2 * -sign
             }
             
         } else {
-            startY -= cellSize / 2
-            endY += cellSize / 2
+            startY += cellSize / 2 * sign
+            endY += cellSize / 2 * -sign
         }
         return (start: CGPoint(x: startX, y: startY), end: CGPoint(x: endX, y: endY))
     }
