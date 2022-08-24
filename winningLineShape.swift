@@ -26,6 +26,9 @@ struct winLine: Shape {
 }
 
 struct lineAnimation: View {
+    
+    typealias Line = (start: CGPoint, end: CGPoint)
+    
     @ObservedObject var game: ImageTicTacToeGame
     let color: Color
    
@@ -48,59 +51,50 @@ struct lineAnimation: View {
         }
     }
     
-    func getLinePositions(in geometry: GeometryProxy) -> (start: CGPoint, end: CGPoint) {
+    private func getLinePositions(in geometry: GeometryProxy) -> Line {
         
-        if let (start, finish) = game.getWinLineEndPoints() {
-            let deltaX = finish.column - start.column
-            let deltaY = finish.row - start.row
+        if let (startCell, endCell) = game.getWinLineEndPoints() {
+            let line = CGVector(dx: endCell.column - startCell.column, dy: endCell.row - startCell.row)
             
-            let minDimension = Int(min(geometry.size.width, geometry.size.height))
-            let maxDimension = Int(max(geometry.size.width, geometry.size.height))
-            let cellSize = minDimension / game.size
-            let gridStartY = (maxDimension - minDimension) / 2
+            let minDimension = min(geometry.size.width, geometry.size.height)
+            let cellSize: CGFloat = minDimension / CGFloat(game.size)
             
-            var startX = (cellSize * start.column) + (cellSize / 2)
-            var startY = gridStartY + cellSize / 2 + cellSize * start.row
+            let start = CGPoint(
+                x: (cellSize * CGFloat(startCell.column)) + (cellSize / 2),
+                y: cellSize / 2 + cellSize * CGFloat(startCell.row)
+            )
+            let end = CGPoint(
+                x: start.x + line.dx * cellSize,
+                y: start.y + line.dy * cellSize
+            )
+            let modifier = startCell.id > endCell.id ? CGFloat(cellSize / 2) : CGFloat(-(cellSize / 2))
             
-            var endX = startX + deltaX * cellSize
-            var endY = startY + deltaY * cellSize
-            
-            let slope = finish.column - start.column != 0 ? (finish.row - start.row) / (finish.column - start.column) : nil
-            let startID = start.row * game.size + start.column
-            let finishID = finish.row * game.size + finish.column
-            
-            let sign = {
-                if startID > finishID {
-                    return 1
-                }
-                return -1
-            }()
-            
-            /// adjusts line depending on the slope of the winning cells
-            if let slope {
-                if slope == 0 {
-                    startX += cellSize / 2 * sign
-                    endX += cellSize / 2 * -sign
-                } else if slope == -1 {
-                    startX += cellSize / 2 * -sign
-                    startY += cellSize / 2 * sign
-                    endX += cellSize / 2 * sign
-                    endY += cellSize / 2 * -sign
-                } else if slope == 1 {
-                    startX += cellSize / 2 * sign
-                    startY += cellSize / 2 * sign
-                    endX += cellSize / 2 * -sign
-                    endY += cellSize / 2 * -sign
-                }
-                
-            } else {
-                startY += cellSize / 2 * sign
-                endY += cellSize / 2 * -sign
-            }
-            return (start: CGPoint(x: startX, y: startY), end: CGPoint(x: endX, y: endY))
-            
+            return addOffset(line: (start, end), on: line, amount: modifier)
         }
-        
         return (start: CGPoint(x: 0, y: 0), end: CGPoint(x: 0, y: 0))
+    }
+    
+    private func addOffset(line: Line, on vector: CGVector, amount: CGFloat ) -> Line {
+        var start = line.start
+        var end = line.end
+        
+        if vector.dx == 0 {
+            start.y += amount
+            end.y -= amount
+        } else if vector.dy == 0 {
+            start.x += amount
+            end.x -= amount
+        } else if vector.dy / vector.dx > 0 {
+            start.x += amount
+            end.x -= amount
+            start.y += amount
+            end.y -= amount
+        } else {
+            start.x -= amount
+            end.x += amount
+            start.y += amount
+            end.y -= amount
+        }
+        return (start: start, end: end)
     }
 }
