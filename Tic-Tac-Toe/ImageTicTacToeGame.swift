@@ -23,6 +23,7 @@ class ImageTicTacToeGame: ObservableObject {
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner() }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
+    var lastMove: TicTacToe.Board.Cell? { return game.lastMove }
     
     
     func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
@@ -57,17 +58,20 @@ class ImageTicTacToeGame: ObservableObject {
         }
     }
     
-    func getWinLineEndPoints() -> (CGPoint, CGPoint) {
+    func getWinLineEndPoints() -> (start: TicTacToe.Board.Cell, finish: TicTacToe.Board.Cell)? {
         var cells = game.winningCells()
-        if (cells != nil) {
-            if cells?.first != game.lastMove {
-                let lastIndex = (cells?.count ?? 0) - 1
-                cells?.swapAt(0, lastIndex)
+        
+        if var cells = cells {
+            if let first = cells.first, let last = cells.last {
+                
+                // put the most recently played move at the start
+                if last == game.lastMove {
+                    return (last, first)
+                }
+                return (first, last)
             }
         }
-        let start = CGPoint(x: cells?.first?.row ?? 0, y: cells?.first?.column ?? 0)
-        let end = CGPoint(x: cells?.last?.row ?? 0, y: cells?.last?.column ?? 0)
-        return (start, end)
+        return nil
     }
     
     func aiMove() {

@@ -46,7 +46,6 @@ struct TicTacToeGameView: View {
         
         
         var body: some View {
-            let (start, end) = game.getWinLineEndPoints()
             LazyVGrid (columns: Array(repeating: gridCell(), count: game.size), spacing: 0) {
                 ForEach(game.board) { cell in
                     CellView(player: cell)
@@ -59,7 +58,7 @@ struct TicTacToeGameView: View {
                 }
             }
                 .overlay(lines(game: game, size: game.size))
-                .overlay(lineAnimation(game: game, start: start, end: end, color: {
+                .overlay(lineAnimation(game: game, color: {
                     switch game.winner {
                     case.X: return Constants.playerXColor
                     case.O: return Constants.playerYColor
