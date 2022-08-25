@@ -39,14 +39,14 @@ struct TicTacToeGameView: View {
                     }
                 }()
                 Rectangle().fill(
-                    Gradient(colors: [.black, color, .black, color, .black]))
+                   Gradient(colors: [.black, color, color, .black]))
             } else {
                 // Fallback on earlier versions
             }
             VStack {
                 Spacer()
                 TitleView(game: game)
-                GridView(game: game)
+                GridView(game: game).padding(.all)
                 Spacer()
                 ControlView(game: game)
             }
@@ -92,7 +92,6 @@ struct TicTacToeGameView: View {
             }
             .overlay(GridLinesView(size: game.size))
             .overlay(lineIndicatingWinnerView(game: game))
-           
         }
         
         private func gridCell() -> GridItem {

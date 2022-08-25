@@ -8,7 +8,7 @@
 import Foundation
 
 /// - Bug: potential for bugs caused by assuming a  `Cell`'s id is equivalent to it's positions in the cells array
-struct Grid<Content> {
+struct Grid<Content> where Content: Hashable {
     
     
     /// Cells stored by their id property in increasing order; a `Cell`'s id should be equivalent to it's index
@@ -17,19 +17,18 @@ struct Grid<Content> {
     // The numbers of cells in each grid row and column
     private let size: Int
     
-    struct Cell: Identifiable, Equatable {
+    struct Cell: Identifiable, Equatable, Hashable {
         
         /* only grid should need to see the id and content*/
-        private(set) var id: Int
-        private(set) var row: Int
-        private(set) var column: Int
+        let id: Int
+        let row: Int
+        let column: Int
         
         var content: Content?
         
         func isEmpty() -> Bool {
             return content == nil
         }
-        
         static func ==(lhs: Grid<Content>.Cell, rhs: Grid<Content>.Cell) -> Bool {
             return lhs.id == rhs.id
         }
@@ -48,6 +47,34 @@ struct Grid<Content> {
                      column: number % size
                     ))
         }
+    }
+    
+    func adjacent(to cell: Cell) -> Set<Cell> {
+        var adjacentCells = Set<Cell>()
+        
+        var deltas = [-size, size]
+        if cell.id % size != 0 {
+            deltas += [-size - 1, -1, size - 1]
+        }
+        if cell.id % size != size - 1 {
+            deltas += [-size + 1, 1, size + 1]
+        }
+        
+        deltas.forEach {
+            let index = cell.id + $0
+            if 0 <= index && index < cells.count {
+                adjacentCells.insert(cells[index])
+            }
+        }
+        return adjacentCells
+    }
+    
+    func groups(containing cell: Cell) -> [[Cell]] {
+        let row = getRow(of: cell)
+        let col = getColumn(of: cell)
+        let pos = getDiagonal(of: cell, slope: .positive)
+        let neg = getDiagonal(of: cell, slope: .negative)
+        return [row, col, pos, neg]
     }
     
     /// returns true if all cells in the grid contain `Content`; otherwise false
@@ -73,11 +100,20 @@ struct Grid<Content> {
         var end: Int
         
         for row in 0..<size {
-            start = size * row
-            end = size * (row + 1)
-            rows.append(cells.filter { start <= $0.id && $0.id < end } )
+            rows.append(getRow(of: cells[row * size]))
         }
         return rows
+    }
+    
+    func getRow(of cell: Cell) -> [Cell] {
+        var row = Array<Cell>()
+        let startIndex = cell.row * size
+        var index = startIndex
+        while index < startIndex + size {
+            row.append(cells[index])
+            index += 1
+        }
+        return row
     }
     
     ///  Returns the array representations of the grids columns ordered from left to right
@@ -85,10 +121,20 @@ struct Grid<Content> {
         
         var columns = [[Cell]]()
         
-        for column in 0..<size {
-            columns.append(cells.filter { ($0.id - column) % size == 0 } )
+        for index in 0..<size {
+            columns.append(getColumn(of: cells[index]))
         }
         return columns
+    }
+    
+    func getColumn(of cell: Cell) -> [Cell] {
+        var column = Array<Cell>()
+        var index = cell.column
+        while index < cells.count {
+            column.append(cells[index])
+            index += size
+        }
+        return column
     }
     
     /**
@@ -136,7 +182,7 @@ struct Grid<Content> {
         /// maximum possible index of a `Cell` within the constructed diagonal array
         let maxIndex: Int
         
-        /// distance from `cell` to either the top left cell if `slope.positive` or
+        /// distance from `cell` to either the top left cell (origin) if `slope.positive` or
         /// top right cell if `slope.negative` stepping diagonally, vertically or horizonatally
         let distanceToTopCorner: Int
         

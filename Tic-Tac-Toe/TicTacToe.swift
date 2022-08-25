@@ -30,6 +30,7 @@ struct TicTacToe {
     
     /// a `Grid` of `Player?` representing the state of the `TicTacToe` game
     private(set) var board: Board
+    private(set) var winner: Player?
     
     /// all moves taken since the games initial state
     private(set) var moves = Array<Board.Cell>()
@@ -67,9 +68,12 @@ struct TicTacToe {
             - cell: The cell the current player is attemping to choose.
      */
     mutating func choose(cell: Board.Cell) -> Bool {
-        if cell.isEmpty() && winner() == nil {
+        if cell.isEmpty() && winner == nil {
             if let successfulMove = board.changeContent(of: cell, to: currentPlayer) {
                 moves.append(successfulMove)
+                if board.groups(containing: successfulMove).contains { winningPath(in: $0) } {
+                    winner = currentPlayer
+                }
                 currentPlayer = !currentPlayer
                 undoneMoves.removeAll()
                 return true
@@ -92,6 +96,7 @@ struct TicTacToe {
             let cell: Grid<Player?>.Cell = moves.removeLast()
             if let successfulUndo = board.changeContent(of: cell, to: nil) {
                 undoneMoves.append(successfulUndo)
+                winner = nil
                 currentPlayer = !currentPlayer
                 return true
             }
@@ -138,20 +143,14 @@ struct TicTacToe {
      This could be made faster by by checking for either winner on a single pass of the possible win paths.
      check the all the paths off the most recently made move
     */
-    func winner() -> Player? {
-        
-        /// all potential paths on which a player could meet the win condition
-        let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
-        
-        for path in possibleWinPaths {
-            let slice = longestPlayerSubArray(in: path)
-            if slice.count >= WinCondition {
-                if let player = slice.first?.content {
-                    return player
-                }
+    func winningPath(in path: [Board.Cell]) -> Bool {
+        let slice = longestPlayerSubArray(in: path)
+        if slice.count >= WinCondition {
+            if let player = slice.first?.content {
+                return true
             }
         }
-        return nil
+        return false
     }
     
     func winningCells() -> Array<Board.Cell>? {
@@ -176,7 +175,7 @@ struct TicTacToe {
     otherwise return `false`
      */
     func isTerminal() -> Bool {
-        return winner() != nil || board.isFull()
+        return winner != nil || board.isFull()
     }
     
     /**
@@ -187,6 +186,7 @@ struct TicTacToe {
     mutating func reset() {
         board = TicTacToe.emptyGameBoard(size: size)
         currentPlayer = TicTacToe.defaultPlayer
+        winner = nil
         moves.removeAll()
         undoneMoves.removeAll()
     }

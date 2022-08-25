@@ -13,21 +13,23 @@ class ImageTicTacToeGame: ObservableObject {
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 10, winCondition: 3)
-        bot = TicTacToeBot(MaxDepth: 0)
+        game = TicTacToe(size: 10, winCondition: 5)
+        bot = TicTacToeBot(MaxDepth: 2)
     }
     
     
     var size: Int { return game.size }
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.cells }
     var isTerminal: Bool { return game.isTerminal() }
-    var winner: TicTacToe.Player? { return game.winner() }
+    var winner: TicTacToe.Player? { return game.winner }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
     var lastMove: TicTacToe.Board.Cell? { return game.lastMove }
     
     
     func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
-        game.choose(cell: cell)
+        if game.choose(cell: cell) {
+            aiMove()
+        }
     }
     
     func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> Image? {
@@ -35,17 +37,21 @@ class ImageTicTacToeGame: ObservableObject {
     }
     
     func undo() {
+        if game.winner == nil || game.moves.first!.content != game.winner {
+            game.undo()
+        }
         game.undo()
     }
     
     func redo() {
-        game.redo()
+        if game.redo() {
+            game.redo()
+        }
     }
     
     func reset() {
         game.reset()
     }
-    
     
     func image(of player: TicTacToe.Player??) -> Image? {
         switch player {
