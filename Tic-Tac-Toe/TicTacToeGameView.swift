@@ -14,10 +14,8 @@ struct TicTacToeGameView: View {
     private struct Constants {
         static let foreground: Color = .accentColor
         static let background: Color = .black
-        
-        static let titleBackground: Color = background
         static let gridBackground: Color = .white
-        static let controlBackground: Color = background
+        
         static let gridLineColour: Color = .gray
         static let playerXColor: Color = .blue
         static let playerYColor: Color = .red
@@ -27,15 +25,23 @@ struct TicTacToeGameView: View {
         
         static let winLineWidth: CGFloat = 5
         static let winningLineStyle = StrokeStyle(lineWidth: 4, lineCap: .round)
+        static let winLineSpeed: Double = 0.4
     }
     
     var body: some View {
         ZStack {
-            Rectangle().fill(.white)
+            if #available(iOS 16.0, *) {
+                let color = game.currentPlayer == .X ? Constants.playerXColor : Constants.playerYColor
+                Rectangle().fill(
+                    Gradient(colors: [.black, color, .black, color, .black]))
+            } else {
+                // Fallback on earlier versions
+            }
             VStack {
-                ControlView(game: game)
-                    .rotationEffect(Angle(degrees: 180))
-                GridView(game: game).padding(40)
+                Spacer()
+                TitleView(game: game)
+                GridView(game: game)
+                Spacer()
                 ControlView(game: game)
             }
         }.statusBar(hidden: true )
@@ -44,23 +50,21 @@ struct TicTacToeGameView: View {
     struct TitleView: View {
         @ObservedObject var game: ImageTicTacToeGame
         var body: some View {
-            ZStack {
-                Rectangle()
-                    .fill(Constants.titleBackground)
-                HStack {
-                    if game.winner != nil {
-                        game.image(of: game.winner)
-                        Text(" Wins")
-                    } else if game.isTerminal {
-                        Text("Tie")
-                    } else {
-                        game.image(of: game.currentPlayer)
-                        Text("'s Turn")
-                    }
+            HStack {
+                if game.winner != nil {
+                    game.image(of: game.winner)
+                    Text(" Wins")
+                } else if game.isTerminal {
+                    Text("Tie")
+                } else {
+                    game.image(of: game.currentPlayer)
+                    Text("'s Turn")
                 }
-                .font(.largeTitle)
-                .foregroundColor(Constants.foreground)
             }
+            .scaleEffect(game.winner == nil ? 1: 1.5)
+            .animation(.spring(), value: game.winner)
+            .font(.largeTitle)
+            .foregroundColor(Constants.foreground)
         }
     }
     
@@ -105,7 +109,7 @@ struct TicTacToeGameView: View {
                         style: Constants.winningLineStyle)
                     .onAppear(perform: {
                         progress = CGFloat.zero     // reset the animation
-                        withAnimation(.easeIn(duration: 0.5)) { progress = 1 }
+                        withAnimation(.easeIn(duration: Constants.winLineSpeed)) { progress = 1 }
                     })
             }
         }
@@ -158,32 +162,28 @@ struct TicTacToeGameView: View {
         var game: ImageTicTacToeGame
         
         var body: some View {
-            ZStack {
-                Rectangle()
-                    .fill(Constants.controlBackground)
-                HStack {
-                    Spacer()
-                    Button(action: game.reset) {
-                        ControlView.label("restart", icon: "restart")
-                    }
-                    Spacer()
-                    Button(action: game.undo) {
-                        ControlView.label("undo", icon: "arrow.uturn.backward")
-                    }
-                    Spacer()
-                    Button(action: game.redo) {
-                        ControlView.label("redo", icon: "arrow.uturn.forward")
-                    }
-                    Spacer()
-                    Button(action: game.aiMove) {
-                        ControlView.label("AI move", icon: "brain.head.profile")
-                    }
-                    Spacer()
+            HStack {
+                Spacer()
+                Button(action: game.reset) {
+                    ControlView.label("restart", icon: "restart")
                 }
-                .padding()
-                .foregroundColor(Color.blue)
-                .controlSize(.large)
+                Spacer()
+                Button(action: game.undo) {
+                    ControlView.label("undo", icon: "arrow.uturn.backward")
+                }
+                Spacer()
+                Button(action: game.redo) {
+                    ControlView.label("redo", icon: "arrow.uturn.forward")
+                }
+                Spacer()
+                Button(action: game.aiMove) {
+                    ControlView.label("AI move", icon: "brain.head.profile")
+                }
+                Spacer()
             }
+            .padding()
+            .foregroundColor(Constants.foreground)
+            .controlSize(.large)
         }
         
         @ViewBuilder
@@ -202,6 +202,7 @@ struct TicTacToeGameView: View {
                 .aspectRatio(contentMode: .fit)
                 .padding(20)
                 .foregroundColor(Constants.playerXColor)
+                .transition(.scale.animation(.easeIn(duration: 0.1)))
         }
     }
     
@@ -212,6 +213,7 @@ struct TicTacToeGameView: View {
                 .aspectRatio(contentMode: .fit)
                 .padding(15)
                 .foregroundColor(Constants.playerYColor)
+                .transition(.scale.animation(.easeIn(duration: 0.1)))
         }
     }
     

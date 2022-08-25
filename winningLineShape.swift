@@ -41,6 +41,9 @@ struct lineAnimation: Shape {
         }
     }
     
+    /**
+     move the `start` and `finish` points of `line` away from it's midpoint by `amount`
+     */
     private func extend(_ line: StraightLine, by amount: CGFloat ) -> StraightLine {
         var extendedStart = line.start
         var extendedEnd = line.end
