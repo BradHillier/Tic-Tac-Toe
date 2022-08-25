@@ -12,41 +12,55 @@ struct TicTacToeGameView: View {
     @ObservedObject var game = ImageTicTacToeGame()
     
     private struct Constants {
-        static let gridLineWidth: CGFloat = 3
+        static let foreground: Color = .accentColor
+        static let background: Color = .black
+        
+        static let titleBackground: Color = background
+        static let gridBackground: Color = .white
+        static let controlBackground: Color = background
         static let gridLineColour: Color = .gray
-        static let winLineWidth: CGFloat = 5
         static let playerXColor: Color = .blue
         static let playerYColor: Color = .red
+        
+        static let gridLineWidth: CGFloat = 3
+        static let gridLineStyle = StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round)
+        
+        static let winLineWidth: CGFloat = 5
         static let winningLineStyle = StrokeStyle(lineWidth: 4, lineCap: .round)
     }
     
     var body: some View {
-        VStack {
-            Spacer()
-            TitleView(game: game)
-            Spacer()
-            GridView(game: game)
-            Spacer(minLength: 70)
-            ControlView(game: game)
-        }
+        ZStack {
+            Rectangle().fill(.white)
+            VStack {
+                ControlView(game: game)
+                    .rotationEffect(Angle(degrees: 180))
+                GridView(game: game).padding(40)
+                ControlView(game: game)
+            }
+        }.statusBar(hidden: true )
     }
     
     struct TitleView: View {
         @ObservedObject var game: ImageTicTacToeGame
         var body: some View {
-            HStack {
-                if game.winner != nil {
-                    game.image(of: game.winner)
-                    Text(" Wins")
-                } else if game.isTerminal {
-                    Text("Tie")
-                } else {
-                    game.image(of: game.currentPlayer)
-                    Text("'s Turn")
+            ZStack {
+                Rectangle()
+                    .fill(Constants.titleBackground)
+                HStack {
+                    if game.winner != nil {
+                        game.image(of: game.winner)
+                        Text(" Wins")
+                    } else if game.isTerminal {
+                        Text("Tie")
+                    } else {
+                        game.image(of: game.currentPlayer)
+                        Text("'s Turn")
+                    }
                 }
-            }
                 .font(.largeTitle)
-                .foregroundColor(.primary)
+                .foregroundColor(Constants.foreground)
+            }
         }
     }
     
@@ -80,13 +94,19 @@ struct TicTacToeGameView: View {
     
     struct lineIndicatingWinnerView: View {
         @ObservedObject var game: ImageTicTacToeGame
+        @State var progress = CGFloat.zero
         
         @ViewBuilder
         var body: some View {
             if let (start, finish) = game.getWinLineEndPoints() {
-                lineAnimation(startCell: start, endCell: finish, gridSize: game.size)
+                lineAnimation(start: start, finish: finish, gridSize: game.size)
+                    .trim(from: 0, to: progress)
                     .stroke(game.winner == .X ? Constants.playerXColor : Constants.playerYColor,
                         style: Constants.winningLineStyle)
+                    .onAppear(perform: {
+                        progress = CGFloat.zero     // reset the animation
+                        withAnimation(.easeIn(duration: 0.5)) { progress = 1 }
+                    })
             }
         }
     }
@@ -105,14 +125,12 @@ struct TicTacToeGameView: View {
                          path.move(to: CGPoint(x: 0, y: cellSize * CGFloat(n) ))
                          path.addLine(to: CGPoint(x: geometry.size.width, y: cellSize * CGFloat(n)))
                      }
-                         .stroke(Constants.gridLineColour,
-                             style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
+                         .stroke(Constants.gridLineColour, style: Constants.gridLineStyle)
                      Path() { path in
                          path.move(to: CGPoint(x: cellSize * CGFloat(n), y: 0))
                          path.addLine(to: CGPoint(x: cellSize * CGFloat(n), y: geometry.size.height))
                      }
-                         .stroke(Constants.gridLineColour,
-                             style: StrokeStyle(lineWidth: Constants.gridLineWidth, lineCap: .round))
+                         .stroke(Constants.gridLineColour, style: Constants.gridLineStyle)
                  }
              }
          }
@@ -124,7 +142,7 @@ struct TicTacToeGameView: View {
         var body: some View {
             ZStack {
                 Rectangle()
-                    .fill(.background)
+                    .fill(Constants.gridBackground)
                 if let player = player.content  {
                     if player == .X {
                         PlayerXView()
@@ -140,28 +158,32 @@ struct TicTacToeGameView: View {
         var game: ImageTicTacToeGame
         
         var body: some View {
-            HStack {
-                Spacer()
-                Button(action: game.reset) {
-                    ControlView.label("restart", icon: "restart")
+            ZStack {
+                Rectangle()
+                    .fill(Constants.controlBackground)
+                HStack {
+                    Spacer()
+                    Button(action: game.reset) {
+                        ControlView.label("restart", icon: "restart")
+                    }
+                    Spacer()
+                    Button(action: game.undo) {
+                        ControlView.label("undo", icon: "arrow.uturn.backward")
+                    }
+                    Spacer()
+                    Button(action: game.redo) {
+                        ControlView.label("redo", icon: "arrow.uturn.forward")
+                    }
+                    Spacer()
+                    Button(action: game.aiMove) {
+                        ControlView.label("AI move", icon: "brain.head.profile")
+                    }
+                    Spacer()
                 }
-                Spacer()
-                Button(action: game.undo) {
-                    ControlView.label("undo", icon: "arrow.uturn.backward")
-                }
-                Spacer()
-                Button(action: game.redo) {
-                    ControlView.label("redo", icon: "arrow.uturn.forward")
-                }
-                Spacer()
-                Button(action: game.aiMove) {
-                    ControlView.label("AI move", icon: "brain.head.profile")
-              }
-                Spacer()
+                .padding()
+                .foregroundColor(Color.blue)
+                .controlSize(.large)
             }
-            .padding()
-            .foregroundColor(Color.blue)
-            .controlSize(.large)
         }
         
         @ViewBuilder

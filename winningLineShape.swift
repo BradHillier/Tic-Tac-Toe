@@ -16,19 +16,18 @@ import SwiftUI
 struct lineAnimation: Shape {
     
     typealias StraightLine = (start: CGPoint, end: CGPoint)
-    @State var progress: CGFloat = 1
     
-    var startCell: CGPoint
-    var endCell: CGPoint
+    var start: CGPoint
+    var finish: CGPoint
     var gridSize: Int
     
     func path(in rect: CGRect) -> Path {
-        let gridVector = CGVector(dx: endCell.x - startCell.x, dy: endCell.y - startCell.y)
+        let gridVector = CGVector(dx: finish.x - start.x, dy: finish.y - start.y)
         let minDimension = min(rect.width, rect.height)
         let cellSize: CGFloat = minDimension / CGFloat(gridSize)
         let start = CGPoint(
-            x: (cellSize * CGFloat(startCell.x)) + (cellSize / 2),
-            y: cellSize / 2 + cellSize * CGFloat(startCell.y)
+            x: (cellSize * CGFloat(start.x)) + (cellSize / 2),
+            y: cellSize / 2 + cellSize * CGFloat(start.y)
         )
         let end = CGPoint(
             x: start.x + gridVector.dx * cellSize,
