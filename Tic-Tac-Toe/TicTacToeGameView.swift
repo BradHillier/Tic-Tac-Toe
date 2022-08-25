@@ -31,7 +31,13 @@ struct TicTacToeGameView: View {
     var body: some View {
         ZStack {
             if #available(iOS 16.0, *) {
-                let color = game.currentPlayer == .X ? Constants.playerXColor : Constants.playerYColor
+                let color: Color = {
+                    if let winner = game.winner {
+                        return winner == .X ? Constants.playerXColor : Constants.playerYColor
+                    } else {
+                        return game.currentPlayer == .X ? Constants.playerXColor : Constants.playerYColor
+                    }
+                }()
                 Rectangle().fill(
                     Gradient(colors: [.black, color, .black, color, .black]))
             } else {
