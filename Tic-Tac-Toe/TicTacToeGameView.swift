@@ -17,6 +17,7 @@ struct TicTacToeGameView: View {
         static let winLineWidth: CGFloat = 5
         static let playerXColor: Color = .blue
         static let playerYColor: Color = .red
+        static let winningLineStyle = StrokeStyle(lineWidth: 4, lineCap: .round)
     }
     
     var body: some View {
@@ -84,7 +85,8 @@ struct TicTacToeGameView: View {
         var body: some View {
             if let (start, finish) = game.getWinLineEndPoints() {
                 lineAnimation(startCell: start, endCell: finish, gridSize: game.size)
-                    .stroke(.red, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                    .stroke(game.winner == .X ? Constants.playerXColor : Constants.playerYColor,
+                        style: Constants.winningLineStyle)
             }
         }
     }
