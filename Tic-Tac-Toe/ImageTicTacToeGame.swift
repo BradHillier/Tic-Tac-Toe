@@ -13,7 +13,7 @@ class ImageTicTacToeGame: ObservableObject {
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 10, winCondition: 5)
+        game = TicTacToe(size: 10, winCondition: 3)
         bot = TicTacToeBot(MaxDepth: 0)
     }
     
@@ -58,17 +58,14 @@ class ImageTicTacToeGame: ObservableObject {
         }
     }
     
-    func getWinLineEndPoints() -> (start: TicTacToe.Board.Cell, finish: TicTacToe.Board.Cell)? {
-        var cells = game.winningCells()
-        
-        if var cells = cells {
+    // this probably belongs on TicTacToe
+    func getWinLineEndPoints() -> (start: CGPoint, finish: CGPoint)? {
+        if let cells = game.winningCells() {
             if let first = cells.first, let last = cells.last {
-                
-                // put the most recently played move at the start
-                if last == game.lastMove {
-                    return (last, first)
-                }
-                return (first, last)
+                return (
+                    start: CGPoint(x: first.column, y: first.row),
+                    finish: CGPoint(x: last.column, y: last.row)
+                )
             }
         }
         return nil

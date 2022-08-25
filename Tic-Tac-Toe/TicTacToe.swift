@@ -58,11 +58,10 @@ struct TicTacToe {
     }
     
     /**
-     Change the content of the provided `cell` to the current `Player`;
-     only if the cell isn't already taken and the game isn't over
+     Change content of `cell` to `currentPlayer` iff the cell isn't already taken and the game isn't over
      
      - Returns:
-     `true` if the cell was successfully chose; otherwise `false`
+     `true` if the cell was successfully chosen; otherwise `false`
      
      - parameters:
             - cell: The cell the current player is attemping to choose.
@@ -159,8 +158,13 @@ struct TicTacToe {
         let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
         
         for path in possibleWinPaths {
-            let slice = longestPlayerSubArray(in: path)
+            var slice = longestPlayerSubArray(in: path)
             if slice.count >= WinCondition {
+                
+                // sort with the most recently played move in front
+                if slice.last == moves.last {
+                    slice.reverse()
+                }
                 return slice
             }
         }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct TicTacToeGameView: View {
     @ObservedObject var game = ImageTicTacToeGame()
     
@@ -21,6 +22,17 @@ struct TicTacToeGameView: View {
     var body: some View {
         VStack {
             Spacer()
+            TitleView(game: game)
+            Spacer()
+            GridView(game: game)
+            Spacer(minLength: 70)
+            ControlView(game: game)
+        }
+    }
+    
+    struct TitleView: View {
+        @ObservedObject var game: ImageTicTacToeGame
+        var body: some View {
             HStack {
                 if game.winner != nil {
                     game.image(of: game.winner)
@@ -32,19 +44,15 @@ struct TicTacToeGameView: View {
                     Text("'s Turn")
                 }
             }
-            .font(.largeTitle)
-            .foregroundColor(.primary)
-            Spacer()
-            GridView(game: game).padding(.all, 50)
-            Spacer(minLength: 70)
-            ControlView(game: game)
+                .font(.largeTitle)
+                .foregroundColor(.primary)
         }
     }
     
     struct GridView: View {
         @ObservedObject var game: ImageTicTacToeGame
         
-        
+        @ViewBuilder
         var body: some View {
             LazyVGrid (columns: Array(repeating: gridCell(), count: game.size), spacing: 0) {
                 ForEach(game.board) { cell in
@@ -57,13 +65,9 @@ struct TicTacToeGameView: View {
                         }
                 }
             }
-                .overlay(lines(game: game, size: game.size))
-                .overlay(lineAnimation(game: game, color: {
-                    switch game.winner {
-                    case.X: return Constants.playerXColor
-                    case.O: return Constants.playerYColor
-                    default: return Color.clear
-                    }}()))
+            .overlay(GridLinesView(size: game.size))
+            .overlay(lineIndicatingWinnerView(game: game))
+           
         }
         
         private func gridCell() -> GridItem {
@@ -73,17 +77,28 @@ struct TicTacToeGameView: View {
         }
     }
     
-    struct lines: View {
-        let game: ImageTicTacToeGame
+    struct lineIndicatingWinnerView: View {
+        @ObservedObject var game: ImageTicTacToeGame
+        
+        @ViewBuilder
+        var body: some View {
+            if let (start, finish) = game.getWinLineEndPoints() {
+                lineAnimation(startCell: start, endCell: finish, gridSize: game.size)
+                    .stroke(.red, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+            }
+        }
+    }
+    
+    struct GridLinesView: View {
         let size: Int
         
         let lineWidth: CGFloat = 10
         
         var body: some View {
             GeometryReader { geometry in
-                let cellSize = geometry.size.width / CGFloat(game.size)
+                let cellSize = geometry.size.width / CGFloat(size)
                 
-                 ForEach(1..<game.size) { n in
+                 ForEach(1..<size) { n in
                      Path() { path in
                          path.move(to: CGPoint(x: 0, y: cellSize * CGFloat(n) ))
                          path.addLine(to: CGPoint(x: geometry.size.width, y: cellSize * CGFloat(n)))
