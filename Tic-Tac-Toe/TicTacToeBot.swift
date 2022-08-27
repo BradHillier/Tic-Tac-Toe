@@ -94,10 +94,12 @@ struct TicTacToeBot {
             return nil
         }
         
-        for move in game.availableMoves {
+        var available = game.availableMoves
+        
+        for move in available {
             copy = game
             if copy.choose(cell: move) {
-                (moveValue, depthFound) = getValue(of: copy, highest: maxValue, lowest: minValue)
+                (moveValue, depthFound) = getValue(of: copy, highest: maxValue, lowest: minValue, moves: available)
                 if moveValue > maxValue {
                     maxValue = moveValue
                 } else if moveValue < minValue {
@@ -132,7 +134,7 @@ struct TicTacToeBot {
     - Parameters:
         - game: the `TicTacToe` game whose state will be transformed into a heuristic value
     */
-    private func getValue(of game: TicTacToe, depth: Int=1, highest: Int, lowest: Int) -> (Int, Int) {
+    private func getValue(of game: TicTacToe, depth: Int=1, highest: Int, lowest: Int, moves: Set<Game.Cell>) -> (Int, Int) {
     
     /// a mutable copy of the provided TicTacToe game
     var copy: TicTacToe
@@ -145,7 +147,8 @@ struct TicTacToeBot {
     if depth >= MaxDepth || game.isTerminal() {
         return (utility(of: game, movesAway: depth), depth)
     }
-    let available = game.availableMoves
+    var available = moves
+    available.remove(game.moves.last!)
    
     switch game.currentPlayer {
         
@@ -156,7 +159,7 @@ struct TicTacToeBot {
         for move in available {
             copy = game
             if copy.choose(cell: move) {
-                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: maximumGuaranteedValue, lowest: lowest)
+                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: maximumGuaranteedValue, lowest: lowest, moves: available)
                 maximumGuaranteedValue = max(maximumGuaranteedValue, moveValue)
                 if lowest < maximumGuaranteedValue {
                     break
@@ -172,7 +175,7 @@ struct TicTacToeBot {
         for move in available {
             copy = game
             if copy.choose(cell: move) {
-                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: highest, lowest: minimumGuaranteedValue)
+                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: highest, lowest: minimumGuaranteedValue, moves: available)
                 minimumGuaranteedValue = min(minimumGuaranteedValue, moveValue)
                 if highest > minimumGuaranteedValue {
                     break
@@ -201,27 +204,28 @@ struct TicTacToeBot {
         
         var score = 0
         if let last = game.lastMove {
-            let lanesContainingMove = game.board.groups(containing: last)
-            lanesContainingMove.forEach { lane in
-                let playerCount = lane.filter({ $0.content != nil }).count
-                let currPlayerCount = lane.filter({ $0.content == game.currentPlayer }).count
-                let previousPlayerCount = lane.filter({ $0.content == !game.currentPlayer }).count
-                
-                if playerCount == 1 {
-                    score += 1
-                } else if playerCount == 2 {
-                    score += 10
-                } else {
-                    score += 100
-                }
-                if previousPlayerCount == playerCount || currPlayerCount ==  playerCount - 1 {
-                    score += 100 * playerCount
-                }
-                if currPlayerCount >= game.WinCondition - 1 {
-                    score += 500
-                }
-                if game.winner == last.content {
-                    score += 1000
+            if let lanesContainingMove = game.board.groups(containing: last) {
+                lanesContainingMove.forEach { lane in
+                    let playerCount = lane.filter({ $0.content != nil }).count
+                    let currPlayerCount = lane.filter({ $0.content == game.currentPlayer }).count
+                    let previousPlayerCount = lane.filter({ $0.content == game.nextPlayer() }).count
+                    
+                    if playerCount == 1 {
+                        score += 1
+                    } else if playerCount == 2 {
+                        score += 10
+                    } else {
+                        score += 100
+                    }
+                    if previousPlayerCount == playerCount || currPlayerCount ==  playerCount - 1 {
+                        score += 100 * playerCount
+                    }
+                    if currPlayerCount >= game.connectionsToWin - 1 {
+                        score += 500
+                    }
+                    if game.winner == last.content {
+                        score += 1000
+                    }
                 }
             }
         }

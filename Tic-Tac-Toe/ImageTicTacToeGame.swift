@@ -8,23 +8,25 @@
 
 import SwiftUI
 
+/**
+ Acts as a view model for a game of TicTacToe
+ */
 class ImageTicTacToeGame: ObservableObject {
     @Published private var game: TicTacToe
     let bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 10, winCondition: 5)
+        game = TicTacToe(size: 10, condition: 5)
         bot = TicTacToeBot(MaxDepth: 2)
     }
     
-    
-    var size: Int { return game.size }
+    var size: Int { return game.board.size }
     var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.cells }
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
     var lastMove: TicTacToe.Board.Cell? { return game.lastMove }
-    
+    let inMultiplayerMode = false // this should be on the model
     
     func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
         if game.choose(cell: cell) {
@@ -37,8 +39,10 @@ class ImageTicTacToeGame: ObservableObject {
     }
     
     func undo() {
-        if game.winner == nil || game.moves.first!.content != game.winner {
-            game.undo()
+        if inMultiplayerMode {
+            if game.winner == nil || game.moves.first!.content != game.winner {
+                game.undo()
+            }
         }
         game.undo()
     }
@@ -64,7 +68,6 @@ class ImageTicTacToeGame: ObservableObject {
         }
     }
     
-    // this probably belongs on TicTacToe
     func getWinLineEndPoints() -> (start: CGPoint, finish: CGPoint)? {
         if let cells = game.winningCells() {
             if let first = cells.first, let last = cells.last {

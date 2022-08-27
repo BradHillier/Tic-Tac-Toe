@@ -27,57 +27,48 @@ class GameboardManipulationTests: XCTestCase {
     
     func testDiagonlsLeft() throws {
         var grid = Grid<Int>(size: 3)
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[4], slope: .negative), [grid.cells[2], grid.cells[4], grid.cells[6]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[2], slope: .negative), [grid.cells[2], grid.cells[4], grid.cells[6]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[6], slope: .negative), [grid.cells[2], grid.cells[4], grid.cells[6]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[8], slope: .negative), [grid.cells[8]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[4], slope: .negative), [grid.cells[2], grid.cells[4], grid.cells[6]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[2], slope: .negative), [grid.cells[2], grid.cells[4], grid.cells[6]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[6], slope: .negative), [grid.cells[2], grid.cells[4], grid.cells[6]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[8], slope: .negative), [grid.cells[8]])
         
         grid = Grid<Int>(size: 4)
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[7], slope: .negative), [grid.cells[7], grid.cells[10], grid.cells[13]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[10], slope: .negative), [grid.cells[7], grid.cells[10], grid.cells[13]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[13], slope: .negative), [grid.cells[7], grid.cells[10], grid.cells[13]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[7], slope: .negative), [grid.cells[7], grid.cells[10], grid.cells[13]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[10], slope: .negative), [grid.cells[7], grid.cells[10], grid.cells[13]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[13], slope: .negative), [grid.cells[7], grid.cells[10], grid.cells[13]])
         
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[11], slope: .negative), [grid.cells[11], grid.cells[14]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[14], slope: .negative), [grid.cells[11], grid.cells[14]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[11], slope: .negative), [grid.cells[11], grid.cells[14]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[14], slope: .negative), [grid.cells[11], grid.cells[14]])
         
         grid = Grid<Int>(size: 6)
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[28], slope: .negative), [grid.cells[23], grid.cells[28], grid.cells[33]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[28], slope: .negative), [grid.cells[23], grid.cells[28], grid.cells[33]])
     }
     
     func testDiagonlsRightGridSizeThree() throws {
         let grid = Grid<Int>(size: 3)
         
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[0], slope: .positive), [grid.cells[0], grid.cells[4], grid.cells[8]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[4], slope: .positive), [grid.cells[0], grid.cells[4], grid.cells[8]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[8], slope: .positive), [grid.cells[0], grid.cells[4], grid.cells[8]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[0], slope: .positive), [grid.cells[0], grid.cells[4], grid.cells[8]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[4], slope: .positive), [grid.cells[0], grid.cells[4], grid.cells[8]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[8], slope: .positive), [grid.cells[0], grid.cells[4], grid.cells[8]])
     }
     
     func testDiagonlsRightGridSizeFour() throws {
         let grid = Grid<Int>(size: 4)
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[0], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[5], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[10], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[15], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[0], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[5], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[10], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[15], slope: .positive), [grid.cells[0], grid.cells[5], grid.cells[10], grid.cells[15]])
         
         
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[13], slope: .positive), [grid.cells[8], grid.cells[13]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[13], slope: .positive), [grid.cells[8], grid.cells[13]])
         
-        XCTAssertEqual(grid.getDiagonal(of: grid.cells[6], slope: .positive), [grid.cells[1], grid.cells[6], grid.cells[11]])
+        XCTAssertEqual(grid.diagonal(containing: grid.cells[6], slope: .positive), [grid.cells[1], grid.cells[6], grid.cells[11]])
     }
     
     func testGetCellRow() throws {
         let grid = Grid<Int>(size: 10)
-        XCTAssertEqual(grid.getRow(of: grid.cells[67])[0...1], [grid.cells[6 * 10], grid.cells[6 * 10 + 1]])
+        XCTAssertEqual(grid.row(containing: grid.cells[67])[0...1], [grid.cells[6 * 10], grid.cells[6 * 10 + 1]])
     }
     
-    func testGetAdjacentCells() throws {
-        let grid = Grid<Int>(size: 3)
-        XCTAssertEqual(grid.adjacent(to: grid.cells[4]),
-           [
-                grid.cells[1], grid.cells[7],
-                grid.cells[0], grid.cells[3], grid.cells[6],
-                grid.cells[2], grid.cells[5],grid.cells[8]
-            ]
-       )
-    }
+
 }

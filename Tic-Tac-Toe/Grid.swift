@@ -15,7 +15,7 @@ struct Grid<Content> where Content: Hashable {
     private(set) var cells: Array<Cell>
     
     // The numbers of cells in each grid row and column
-    private let size: Int
+    let size: Int
     
     struct Cell: Identifiable, Equatable, Hashable {
         
@@ -49,34 +49,6 @@ struct Grid<Content> where Content: Hashable {
         }
     }
     
-    func adjacent(to cell: Cell) -> Set<Cell> {
-        var adjacentCells = Set<Cell>()
-        
-        var deltas = [-size, size]
-        if cell.id % size != 0 {
-            deltas += [-size - 1, -1, size - 1]
-        }
-        if cell.id % size != size - 1 {
-            deltas += [-size + 1, 1, size + 1]
-        }
-        
-        deltas.forEach {
-            let index = cell.id + $0
-            if 0 <= index && index < cells.count {
-                adjacentCells.insert(cells[index])
-            }
-        }
-        return adjacentCells
-    }
-    
-    func groups(containing cell: Cell) -> [[Cell]] {
-        let row = getRow(of: cell)
-        let col = getColumn(of: cell)
-        let pos = getDiagonal(of: cell, slope: .positive)
-        let neg = getDiagonal(of: cell, slope: .negative)
-        return [row, col, pos, neg]
-    }
-    
     /// returns true if all cells in the grid contain `Content`; otherwise false
     func isFull() -> Bool {
         return cells.allSatisfy { $0.content != nil }
@@ -87,54 +59,19 @@ struct Grid<Content> where Content: Hashable {
         return cells.allSatisfy { $0.content == nil }
     }
     
-    /// Returns a an array representation of the grids rows
-    func rows() -> [[Cell]] {
-        
-        /// a 2D array where nested arrays contain the cells for a given row on the `TicTacToe` board
-        var rows = [[Cell]]()
-        
-        /// the first id in the current row
-        var start: Int
-        
-        /// the id of first element in the next row
-        var end: Int
-        
-        for row in 0..<size {
-            rows.append(getRow(of: cells[row * size]))
-        }
-        return rows
-    }
     
-    func getRow(of cell: Cell) -> [Cell] {
-        var row = Array<Cell>()
-        let startIndex = cell.row * size
-        var index = startIndex
-        while index < startIndex + size {
-            row.append(cells[index])
-            index += 1
-        }
-        return row
+    /**
+    Returns a an array representation of the grids rows
+     
+    a 2D array where nested arrays contain the cells for a given row on the `TicTacToe` board
+    */
+    func rows() -> [[Cell]] {
+        return Array(0..<size).map { row(containing: cells[$0 * size]) }
     }
     
     ///  Returns the array representations of the grids columns ordered from left to right
     func columns() -> [[Cell]] {
-        
-        var columns = [[Cell]]()
-        
-        for index in 0..<size {
-            columns.append(getColumn(of: cells[index]))
-        }
-        return columns
-    }
-    
-    func getColumn(of cell: Cell) -> [Cell] {
-        var column = Array<Cell>()
-        var index = cell.column
-        while index < cells.count {
-            column.append(cells[index])
-            index += size
-        }
-        return column
+        return Array(0..<size).map { column(containing: cells[$0]) }
     }
     
     /**
@@ -142,44 +79,44 @@ struct Grid<Content> where Content: Hashable {
      
      - Bug: This currently creates two of both diagonals containing the top corners
      */
-    func diagonals() -> [[Cell]] {
-        var diagonals = [Array<Cell>]()
-        
-        if let firstColumn = columns().first {
-            for cell in firstColumn {
-                diagonals.append(getDiagonal(of: cell, slope: .positive))
-                diagonals.append(getDiagonal(of: cell, slope: .negative))
-            }
-        }
-        
-        if let lastColumn = columns().last {
-            for cell in lastColumn {
-                diagonals.append(getDiagonal(of: cell, slope: .positive))
-                diagonals.append(getDiagonal(of: cell, slope: .negative))
+    func diagonals() -> Set<[Cell]> {
+        var diagonals = Set<[Cell]>()
+        if let first = columns().first, let last = columns().last {
+            for cell in Set(first + last) {
+                diagonals.insert(diagonal(containing: cell, slope: .positive))
+                diagonals.insert(diagonal(containing: cell, slope: .negative))
             }
         }
         return diagonals
     }
     
-    enum Slope {
-        case negative, positive
+    
+    /// - Note: tested
+    func column(containing cell: Cell) -> [Cell] {
+        return Array(0..<size).map { cells[cell.column + size * $0] }
     }
-
+    
+    func row(containing cell: Cell) -> [Cell] {
+        return Array(0..<size).map { cells[$0 + cell.row * size] }
+        
+    }
+    
     /**
      Returns all cells in the diagonal sloping downward to the right which contains the provided cell
      
      - Parameters:
         - cell: the cell which is contained in the diagonal to be constructed
-        - slope: 
+        - slope:
      
      - Note: This method relies heavily on the fact that a `Cell`'s index in `cells` is equivalent to it's `id`
     */
-    func getDiagonal(of cell: Cell, slope: Slope ) -> [Cell] {
+    func diagonal(containing cell: Cell, slope: Slope ) -> [Cell] {
         
         /// distance between the `id`'s of cells belonging to the diagonals
         let delta: Int
         
         /// maximum possible index of a `Cell` within the constructed diagonal array
+        ///  - Todo: rename this
         let maxIndex: Int
         
         /// distance from `cell` to either the top left cell (origin) if `slope.positive` or
@@ -189,7 +126,6 @@ struct Grid<Content> where Content: Hashable {
         /// index of `cell` in the constructed diagonal array if it is sorted by id from lowest to highest
         let indexInDiagonal: Int
         
-        /// the number of cells appearing downward and to the right of `cell`
         let numCellsAfterProvided: Int
         
         /// index of the cell with the lowest id in the diagonal
@@ -197,11 +133,6 @@ struct Grid<Content> where Content: Hashable {
         
         /// index in `cells` with the highest id in the diagonal being created
         let lastIndex: Int
-        
-        var diagonal = Array<Cell>()
-        
-        /// index in `cells` of `Cell` currently being added to `rightDiagonal`
-        var currentIndex: Int
         
         maxIndex = size - 1
         switch slope {
@@ -217,13 +148,40 @@ struct Grid<Content> where Content: Hashable {
         
         firstIndex = cell.id - indexInDiagonal * delta
         lastIndex = cell.id + numCellsAfterProvided * delta
-        
-        currentIndex = firstIndex
-        while currentIndex <= lastIndex {
-            diagonal.append(cells[currentIndex])
-            currentIndex += delta
+        let count = (lastIndex - firstIndex) / delta
+        return Array(0...count).map { cells[firstIndex + $0 * delta] }
+    }
+    
+    func groups(containing cell: Cell?) -> [[Cell]]? {
+        if let cell {
+            return [
+                row(containing: cell),
+                column(containing: cell),
+                diagonal(containing: cell, slope: .positive),
+                diagonal(containing: cell, slope: .negative)
+            ]
         }
-        return diagonal
+        return nil
+    }
+    
+    func adjacent(to cell: Cell) -> Array<Cell> {
+        let leftIndices = [-size - 1, -1, size - 1]
+        let rightIndices = [-size + 1, 1, size + 1]
+        
+        var adjacentIndices = [-size, size]
+        if cell.column != 0 {   // then there must be cells to the left of `cell`
+            adjacentIndices += leftIndices
+        }
+        if cell.column != size - 1 {    // then there must be cells to the right of `cell`
+            adjacentIndices += rightIndices
+        }
+        return adjacentIndices.compactMap {
+            let index = cell.id + $0
+            if (0..<cells.count).contains(index) {
+                return cells[index]
+            }
+            return nil
+        }
     }
     
     /**
@@ -245,5 +203,9 @@ struct Grid<Content> where Content: Hashable {
             return cells[chosenIndex]
         }
         return nil
+    }
+    
+    enum Slope {
+        case negative, positive
     }
 }
