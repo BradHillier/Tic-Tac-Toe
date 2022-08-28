@@ -71,7 +71,6 @@
 		94895CAD2883E20F004F6ADD = {
 			isa = PBXGroup;
 			children = (
-				943A59B928BA3384002A95E2 /* ConnectionBoardGame.swift */,
 				94895CB82883E20F004F6ADD /* Tic-Tac-Toe */,
 				94895CD02883F550004F6ADD /* Tic-Tac-ToeTests */,
 				94895CB72883E20F004F6ADD /* Products */,
@@ -90,6 +89,7 @@
 		94895CB82883E20F004F6ADD /* Tic-Tac-Toe */ = {
 			isa = PBXGroup;
 			children = (
+				943A59B928BA3384002A95E2 /* ConnectionBoardGame.swift */,
 				943A59B728B8E74A002A95E2 /* TurnBasedGridGame.swift */,
 				9445490428B4D8C5004AAC25 /* winningLineShape.swift */,
 				94895CB92883E20F004F6ADD /* Tic_Tac_ToeApp.swift */,
