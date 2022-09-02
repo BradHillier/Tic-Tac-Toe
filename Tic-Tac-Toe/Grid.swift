@@ -197,12 +197,21 @@ struct Grid<Content> where Content: Hashable {
      - Note:
      This function utilizes the fact that a `Cell`'s index in the `cells` array is the same as the `Cell`'s id
      */
+    @discardableResult
     mutating func changeContent(of cell: Cell, to content: Content?) -> Cell? {
         if let chosenIndex = cells.firstIndex(where: { $0.id == cell.id }) {
             cells[chosenIndex].content = content
             return cells[chosenIndex]
         }
         return nil
+    }
+    
+    func changingContent(of cell: Cell, to content: Content?) -> Self {
+        var copy = self
+        if let chosenIndex = copy.cells.firstIndex(where: { $0.id == cell.id }) {
+            copy.cells[chosenIndex].content = content
+        }
+        return copy
     }
     
     enum Slope {
