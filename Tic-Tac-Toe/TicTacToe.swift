@@ -11,39 +11,49 @@ import Foundation
 /**
  a model of game of tictactoe
  
+ - bug: ai will currently still take a move even if the move the player selected was already taken
  - todo: check for a winner after a move, only checking the paths off of the move; have a flag on TicTacToe for the winner maybe a Player?
  */
 struct TicTacToe: ConnectionBoardGame {
+
+    typealias Content = Player?
+    typealias CommandData = (cell: Board.Cell, player: Player)
     
-    static var defaultPlayer: Player = .X
-    
-    typealias Board = Grid<Player?>
-    
-    var board: Board
-    var moves = Array<Board.Cell>()
-    var undoneMoves = Array<Board.Cell>()
-    var currentPlayer = TicTacToe.defaultPlayer
-    var connectionsToWin: Int
-    
+    var currentPlayer: Player
+    var defaultPlayer: Player = .X
+    var moves: Array<Command<TicTacToe, CommandData>>
+    var undoneMoves: Array<Command<TicTacToe, CommandData>>
     var winner: Player?
+    var board: Board
+    var connectionsToWin: Int
+    var lastMove: Board.Cell?
     
-    /**
-    Creates a new instance with an empty game board of size `gridSize`
-     
-     - Parameters:
-        - size: the number of cells in each of the grid's rows and columns
-     */
+    enum Player: CaseIterable, Hashable {
+        case X, O
+    }
+    
     init(size: Int, condition: Int = 3) {
         board = TicTacToe.emptyGameBoard(size: size)
-        self.connectionsToWin = condition
-        currentPlayer = TicTacToe.defaultPlayer
+        connectionsToWin = condition
+        currentPlayer = defaultPlayer
+        moves = Array<Command<Self, CommandData>>()
+        undoneMoves = Array<Command<Self, CommandData>>()
+    }
+    
+    var availableMoves: Set<Board.Cell> { Set(board.cells.filter { $0.content == nil }) }
+    
+    func choose(cell: Board.Cell) -> Command<Self, CommandData>? {
+        if cell.isEmpty() && !isWon() {
+            return Command(data: (cell, currentPlayer)) {
+                    $0.board.changeContent(of: cell, to: currentPlayer)
+            }
+        }
+        return nil
     }
     
     func isWon() -> Bool {
-        if !moves.isEmpty  {
-            if let last = board.groups(containing: lastMove!) {
-                return last.contains { winningPath(in: $0) }
-            }
+        if let last = moves.last {
+            return board.groups(containing: last.data.cell)!.contains { winningPath(in: $0) }
         }
         return false
     }
@@ -52,57 +62,13 @@ struct TicTacToe: ConnectionBoardGame {
         return winner != nil || board.isFull()
     }
     
-    var availableMoves: Set<Board.Cell> {
-        Set(moves.flatMap { cell in
-            board.adjacent(to: cell).filter { $0.content == nil }
-        })
-    }
-    
     func nextPlayer() -> Player {
         switch currentPlayer {
         case .X: return .O
         case .O: return .X
         }
     }
-    
-    /**
-     Change content of `cell` to `currentPlayer` iff the cell isn't already taken and the game isn't over
-     
-     - Returns:
-     `true` if the cell was successfully chosen; otherwise `false`
-     
-     - parameters:
-            - cell: The cell the current player is attemping to choose.
-     */
-    mutating func choose(cell: Board.Cell) -> Bool {
-        if cell.isEmpty() && winner == nil {
-            if let successfulMove = board.changeContent(of: cell, to: currentPlayer) {
-                moves.append(successfulMove)
-                if isWon() {
-                    winner = currentPlayer
-                }
-                currentPlayer = nextPlayer()
-                undoneMoves.removeAll()
-                return true
-            }
-        }
-        return false
-    }
-
-
-
-    mutating func reset() {
-        board = TicTacToe.emptyGameBoard(size: board.size)
-        currentPlayer = TicTacToe.defaultPlayer
-        winner = nil
-        moves.removeAll()
-        undoneMoves.removeAll()
-    }
-    
-    /// Represents either the X player or the O player in a game of Tictactoe
-    enum Player: CaseIterable, Hashable {
-        case X, O
-
-    }
 }
+
+
 

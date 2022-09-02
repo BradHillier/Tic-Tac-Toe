@@ -13,51 +13,52 @@ import SwiftUI
  */
 class ImageTicTacToeGame: ObservableObject {
     @Published private var game: TicTacToe
-    let bot: TicTacToeBot
     
     init() {
         game = TicTacToe(size: 10, condition: 5)
-        bot = TicTacToeBot(MaxDepth: 2)
     }
     
     var size: Int { return game.board.size }
-    var board: [Grid<TicTacToe.Player?>.Cell] { return game.board.cells }
+    var board: [TicTacToe.Board.Cell] { return game.board.cells }
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
-    var lastMove: TicTacToe.Board.Cell? { return game.lastMove }
-    let inMultiplayerMode = false // this should be on the model
+    let inMultiplayerMode = true // this should be on the model
     
-    func choose(_ cell: Grid<TicTacToe.Player?>.Cell) {
-        if game.choose(cell: cell) {
-            aiMove()
+    func choose(_ cell: TicTacToe.Board.Cell) {
+        if let action = game.choose(cell: cell) {
+            game.perform(action)
         }
     }
     
-    func getValue(of cell: Grid<TicTacToe.Player?>.Cell) -> Image? {
+    func getValue(of cell: TicTacToe.Board.Cell) -> Image? {
         return image(of: cell.content)
     }
     
     func undo() {
-        if inMultiplayerMode {
-            if game.winner == nil || game.moves.first!.content != game.winner {
+        if !inMultiplayerMode {
+        //    if game.winner == nil || game.moves.first!.player != game.winner {
                 game.undo()
-            }
+        //    }
         }
         game.undo()
     }
     
     func redo() {
-        if game.redo() {
+        if !inMultiplayerMode {
             game.redo()
         }
+        game.redo()
     }
     
     func reset() {
         game.reset()
     }
     
-    func image(of player: TicTacToe.Player??) -> Image? {
+    /**
+     - ToDo: change the type of value this takes
+     */
+    func image(of player: TicTacToe.Content??) -> Image? {
         switch player {
         case .X:
             return Image(systemName: "xmark")
@@ -69,7 +70,10 @@ class ImageTicTacToeGame: ObservableObject {
     }
     
     func getWinLineEndPoints() -> (start: CGPoint, finish: CGPoint)? {
-        if let cells = game.winningCells() {
+        if var cells = game.winningCells() {
+            if cells.last == game.moves.last?.data.cell {
+                cells.reverse()
+            }
             if let first = cells.first, let last = cells.last {
                 return (
                     start: CGPoint(x: first.column, y: first.row),
@@ -78,11 +82,5 @@ class ImageTicTacToeGame: ObservableObject {
             }
         }
         return nil
-    }
-    
-    func aiMove() {
-        if let move = bot.optimalMove(game) {
-            game.choose(cell: move)
-        }
     }
 }

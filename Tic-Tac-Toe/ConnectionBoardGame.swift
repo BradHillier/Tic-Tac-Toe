@@ -11,8 +11,6 @@ protocol ConnectionBoardGame: TurnBasedGridGame {
    
     var connectionsToWin: Int { get set }
     
-    mutating func choose(cell: Board.Cell) -> Bool
-    
     /**
      Check if any groups of cells contained within `path` meet the win condition
      */
@@ -48,16 +46,14 @@ extension ConnectionBoardGame {
     func winningCells() -> Array<Board.Cell>? {
         let possibleWinPaths = board.columns() + board.rows() + board.diagonals()
         for path in possibleWinPaths {
-            var slice = longestPlayerSubArray(in: path)
+            let slice = longestPlayerSubArray(in: path)
             if slice.count >= connectionsToWin {
-                if slice.last == moves.last {
-                    slice.reverse()
-                }
                 return slice
             }
         }
         return nil
     }
+
     
     func longestPlayerSubArray(in group: Array<Board.Cell>) -> Array<Board.Cell> {
         let s = seperate(group: group, exclude: nil)
@@ -65,6 +61,8 @@ extension ConnectionBoardGame {
         return m
     }
     
+    // this should maybe be an extension of some collection type
+    // should mutate the collection and return the longest sub collection
     func seperate(group: Array<Board.Cell>, exclude: Content?) -> Array<[Board.Cell]> {
         var arr = Array<Array<Board.Cell>>()
         var curr = Array<Board.Cell>()

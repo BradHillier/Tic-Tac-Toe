@@ -8,27 +8,51 @@
 import Foundation
 
 
-protocol TurnBasedGridGame {
-    associatedtype Content where Content: Hashable
-    associatedtype Player where Player: CaseIterable
+struct Command<Game: TurnBasedGridGame, AssociatedData> {
+    var board: Game.Board?
+    let data: AssociatedData
+    let action: (inout Game) -> Void
     
-    var board: Grid<Content> { get set }
+    func undo(on game: inout Game) -> Void {
+        if let board {
+            game.board = board
+        }
+    }
+    
+    mutating func execute(on game: inout Game) -> Void {
+        if board == nil {
+            board = game.board
+        }
+        action(&game)
+    }
+}
+
+
+protocol TurnBasedGridGame {
+    associatedtype Content: Hashable
+    associatedtype Player: CaseIterable
+    associatedtype CommandData
+    
+    typealias Board = Grid<Content>
+    
+    var defaultPlayer: Player { get set }
     var currentPlayer: Player { get set }
     func nextPlayer() -> Player
-    static var defaultPlayer: Player { get set }
-    var moves: Array<Grid<Content>.Cell> { get set }
-    var undoneMoves: Array<Grid<Content>.Cell> { get set }
     var winner: Player? { get set }
     
+    /**
+     if returns `true` sets the value of `winner` to the `currentPlayer`; otherwise ses `winner` to `nil`
+     */
     func isWon() -> Bool
+    var board: Board { get set }
+    var moves: Array<Command<Self, CommandData>> { get set }
+    var undoneMoves: Array<Command<Self, CommandData>> { get set }
     
     /**
     Returns `true` if  a player has won the game or there are no available moves left on the board;
     otherwise return `false`
      */
     func isTerminal() -> Bool
-    
-
     
     /**
     Restore the game to it's initial state
@@ -38,7 +62,7 @@ protocol TurnBasedGridGame {
     mutating func reset()
     
     /// Returns a `Grid` containing `nil` `Player` optionals of the provided size
-    static func emptyGameBoard(size: Int) -> Grid<Content>
+    static func emptyGameBoard(size: Int) -> Board
     
    /**
     Undo the most recent move
@@ -60,49 +84,58 @@ protocol TurnBasedGridGame {
     - Returns:
     `true` if a move was successfully redone; otherwise `false`
     */
+    @discardableResult
     mutating func redo() -> Bool
+    
 }
 
 
 extension TurnBasedGridGame {
     
-   typealias Board = Grid<Content>
-    
-    var lastMove: Board.Cell? { self.moves.last }
-    
-    static func emptyGameBoard(size: Int) -> Grid<Content> {
-        let emptyBoard = Grid<Content>(size: size)
+    static func emptyGameBoard(size: Int) -> Board {
+        let emptyBoard = Board(size: size)
         return emptyBoard
     }
     
-
-    
+    mutating func perform(_ action: Command<Self, CommandData>) {
+        var mutableAction = action
+        mutableAction.execute(on: &self)
+        moves.append(mutableAction)
+        undoneMoves.removeAll()
+        if isWon() {
+            winner = currentPlayer
+        } else {
+            currentPlayer = nextPlayer()
+        }
+    }
+   
+    @discardableResult
     mutating func undo() -> Bool {
-        if !moves.isEmpty {
-            let cell: Grid<Content>.Cell = moves.removeLast()
-            if let successfulUndo = board.changeContent(of: cell, to: nil) {
-                undoneMoves.append(successfulUndo)
-                currentPlayer = nextPlayer()
-                winner = nil
-                return true
-            }
+        if let action = moves.popLast() {
+            action.undo(on: &self)
+            undoneMoves.append(action)
+            return true
         }
         return false
     }
     
+    @discardableResult
     mutating func redo() -> Bool {
-        if !undoneMoves.isEmpty {
-            let lastUndone = undoneMoves.removeLast()
-            if let successfullyRedoneMove = board.changeContent(of: lastUndone, to: lastUndone.content) {
-                moves.append(successfullyRedoneMove)
-                currentPlayer = nextPlayer()
-                return true
-            }
+        if var action = undoneMoves.popLast() {
+            action.execute(on: &self)
+            moves.append(action)
+            return true
         }
         return false
     }
     
+    mutating func reset() {
+        board = Self.emptyGameBoard(size: board.size)
+        currentPlayer = defaultPlayer
+        winner = nil
+        moves.removeAll()
+        undoneMoves.removeAll()
+    }
 }
-
 
 
