@@ -7,7 +7,6 @@
 
 import Foundation
 
-/// - Todo: Move to TicTacToe struct
 extension TicTacToe {
 
     
@@ -54,14 +53,11 @@ extension TicTacToe {
     }
     print("-------")
 }
-
-}
-
-
+    
 /// uses a minimax algorithm to find a reasonable move for the current player, either X or O, of a TicTacToe game
 struct TicTacToeBot {
     
-    typealias Game = Grid<TicTacToe.Player?>
+    typealias Game = TicTacToe.Board
     
     // the maximum depth of the search tree
     let MaxDepth: Int
@@ -94,12 +90,12 @@ struct TicTacToeBot {
             return nil
         }
         
-        var available = game.availableMoves
+        let available = game.availableMoves
         
         for move in available {
             copy = game
-            if copy.choose(cell: move) {
-                (moveValue, depthFound) = getValue(of: copy, highest: maxValue, lowest: minValue, moves: available)
+            if copy.choose(cell: move) != nil {
+                (moveValue, depthFound) = getValue(of: copy, highest: maxValue, lowest: minValue)
                 if moveValue > maxValue {
                     maxValue = moveValue
                 } else if moveValue < minValue {
@@ -110,13 +106,15 @@ struct TicTacToeBot {
         }
         // shuffling before sorting results in scores of the same value appearing
         // in random order once sorted
+        /**
         if scores.allSatisfy({ $0.1 == scores.first?.1}) {
             scores = game.availableMoves.map({ move in
                 var copy = game
-                copy.choose(cell: move)
+                copy.perform(copy.choose(cell: move)!)
                 return (move, moveUtility(copy), 1)
             })
         }
+         */
         scores.shuffle()
         scores.sort { $0.1 > $1.1 }
 
@@ -134,7 +132,7 @@ struct TicTacToeBot {
     - Parameters:
         - game: the `TicTacToe` game whose state will be transformed into a heuristic value
     */
-    private func getValue(of game: TicTacToe, depth: Int=1, highest: Int, lowest: Int, moves: Set<Game.Cell>) -> (Int, Int) {
+    private func getValue(of game: TicTacToe, depth: Int=1, highest: Int, lowest: Int) -> (Int, Int) {
     
     /// a mutable copy of the provided TicTacToe game
     var copy: TicTacToe
@@ -147,19 +145,17 @@ struct TicTacToeBot {
     if depth >= MaxDepth || game.isTerminal() {
         return (utility(of: game, movesAway: depth), depth)
     }
-    var available = moves
-    available.remove(game.moves.last!)
-   
     switch game.currentPlayer {
         
     /// the player trying to maximize the board heuristic
     case .X:
         var maximumGuaranteedValue = Int.min
         
-        for move in available {
+        for move in game.availableMoves {
             copy = game
-            if copy.choose(cell: move) {
-                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: maximumGuaranteedValue, lowest: lowest, moves: available)
+            if let move = copy.choose(cell: move) {
+                copy.perform(move)
+                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: maximumGuaranteedValue, lowest: lowest)
                 maximumGuaranteedValue = max(maximumGuaranteedValue, moveValue)
                 if lowest < maximumGuaranteedValue {
                     break
@@ -172,10 +168,11 @@ struct TicTacToeBot {
     case .O:
         var minimumGuaranteedValue = Int.max
   
-        for move in available {
+        for move in game.availableMoves {
             copy = game
-            if copy.choose(cell: move) {
-                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: highest, lowest: minimumGuaranteedValue, moves: available)
+            if let move = copy.choose(cell: move) {
+                copy.perform(move)
+                (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: highest, lowest: minimumGuaranteedValue)
                 minimumGuaranteedValue = min(minimumGuaranteedValue, moveValue)
                 if highest > minimumGuaranteedValue {
                     break
@@ -203,7 +200,7 @@ struct TicTacToeBot {
     private func moveUtility(_ game: TicTacToe) -> Int {
         
         var score = 0
-        if let last = game.lastMove {
+        if let last = game.moves.last?.data.cell {
             if let lanesContainingMove = game.board.groups(containing: last) {
                 lanesContainingMove.forEach { lane in
                     let playerCount = lane.filter({ $0.content != nil }).count
@@ -229,6 +226,8 @@ struct TicTacToeBot {
                 }
             }
         }
-        return game.moves.last?.content == .X ? score : -score
+        return game.moves.last?.data.player == .X ? score : -score
     }
+    
 }
+

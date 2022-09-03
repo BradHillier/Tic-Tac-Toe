@@ -13,9 +13,11 @@ import SwiftUI
  */
 class ImageTicTacToeGame: ObservableObject {
     @Published private var game: TicTacToe
+    private var bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 10, condition: 5)
+        game = TicTacToe(size: 3, condition: 3)
+        bot = TicTacToeBot(MaxDepth: 7)
     }
     
     var size: Int { return game.board.size }
@@ -23,11 +25,14 @@ class ImageTicTacToeGame: ObservableObject {
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
-    let inMultiplayerMode = true // this should be on the model
+    let inMultiplayerMode = false // this should be on the model
     
     func choose(_ cell: TicTacToe.Board.Cell) {
         if let action = game.choose(cell: cell) {
             game.perform(action)
+            if !inMultiplayerMode {
+               aiMove()
+            }
         }
     }
     
@@ -82,5 +87,13 @@ class ImageTicTacToeGame: ObservableObject {
             }
         }
         return nil
+    }
+    
+    func aiMove() {
+        if let cell = bot.optimalMove(game) {
+            if let action = game.choose(cell: cell) {
+                game.perform(action)
+            }
+        }
     }
 }

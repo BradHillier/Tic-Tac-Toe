@@ -181,7 +181,7 @@ struct TicTacToeGameView: View {
                     ControlView.label("redo", icon: "arrow.uturn.forward")
                 }
                 Spacer()
-                Button(action: game.redo) {
+                Button(action: game.aiMove) {
                     ControlView.label("AI move", icon: "brain.head.profile")
                 }
                 Spacer()

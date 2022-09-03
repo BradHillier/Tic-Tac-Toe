@@ -138,4 +138,9 @@ extension TurnBasedGridGame {
     }
 }
 
+extension CaseIterable {
+    func next() {
+        
+    }
+}
 

@@ -185,7 +185,11 @@ struct Grid<Content> where Content: Hashable {
     }
     
     /**
-     Change the the content of the provided cell to the provided content value
+     Changes the content of the given cell to the provided content value in place
+     
+     This could be modified to have O(1) complexity by utilizing the fact that a `Cell`'s index in `cells`
+     is equivalent to it's id property by default. This does have potential to result in bugs if cells are some how
+     shifted around, which is not intended to be something the end user is capable of doing.
      
      - Parameters:
             - cell: The `Cell` whose content will be changed
@@ -193,9 +197,9 @@ struct Grid<Content> where Content: Hashable {
      
      - Returns:
      The modified `Cell` if successful; otherwise `nil`
-      
-     - Note:
-     This function utilizes the fact that a `Cell`'s index in the `cells` array is the same as the `Cell`'s id
+     
+    - Complexity:
+     O(n), where n is the number of cells in the grid
      */
     @discardableResult
     mutating func changeContent(of cell: Cell, to content: Content?) -> Cell? {
@@ -206,6 +210,11 @@ struct Grid<Content> where Content: Hashable {
         return nil
     }
     
+    /**
+    Returns a Grid with the given cell's content changed to the provided value
+     
+     - Parameters
+     */
     func changingContent(of cell: Cell, to content: Content?) -> Self {
         var copy = self
         if let chosenIndex = copy.cells.firstIndex(where: { $0.id == cell.id }) {

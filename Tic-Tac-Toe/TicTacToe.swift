@@ -17,18 +17,18 @@ import Foundation
 struct TicTacToe: ConnectionBoardGame {
 
     typealias Content = Player?
-    typealias CommandData = (cell: Board.Cell, player: Player)
+    typealias Move = Command<Self, (cell: Board.Cell, player: Player)>
     
     var currentPlayer: Player
     var defaultPlayer: Player = .X
-    var moves: Array<Command<TicTacToe, CommandData>>
-    var undoneMoves: Array<Command<TicTacToe, CommandData>>
+    var moves: Array<Move>
+    var undoneMoves: Array<Move>
     var winner: Player?
     var board: Board
     var connectionsToWin: Int
     var lastMove: Board.Cell?
     
-    enum Player: CaseIterable, Hashable {
+    enum Player: CaseIterable {
         case X, O
     }
     
@@ -36,13 +36,13 @@ struct TicTacToe: ConnectionBoardGame {
         board = TicTacToe.emptyGameBoard(size: size)
         connectionsToWin = condition
         currentPlayer = defaultPlayer
-        moves = Array<Command<Self, CommandData>>()
-        undoneMoves = Array<Command<Self, CommandData>>()
+        moves = Array<Move>()
+        undoneMoves = Array<Move>()
     }
     
-    var availableMoves: Set<Board.Cell> { Set(board.cells.filter { $0.content == nil }) }
+    var availableMoves: Array<Board.Cell> { board.cells.filter { $0.content == nil } }
     
-    func choose(cell: Board.Cell) -> Command<Self, CommandData>? {
+    func choose(cell: Board.Cell) -> Move? {
         if cell.isEmpty() && !isWon() {
             return Command(data: (cell, currentPlayer)) {
                     $0.board.changeContent(of: cell, to: currentPlayer)
