@@ -28,6 +28,9 @@ struct TicTacToe: ConnectionBoardGame {
     var connectionsToWin: Int
     var lastMove: Board.Cell?
     
+    /// - Todo: this should not be here
+    var onMenu = true
+    
     enum Player: CaseIterable {
         case X, O
     }

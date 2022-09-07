@@ -8,50 +8,51 @@
 import Foundation
 
 extension TicTacToe {
-
+    
     
     func display(_ scores: [(Board.Cell, Int, Int)]?) {
         
         var copy = scores
         
         for row in board.rows() {
-            print("-------------------------")
-            print("|   |    |    |    |    |")
+            print("-------------")
+            print("|   |   |   |")
             row.forEach{ cell in
                 print("|", terminator: "")
                 if let content = cell.content {
-                    let repr = content == .X ? "  X  " : "  O  "
+                    let repr = content == .X ? " X " : " O "
                     print(repr, terminator: "")
                 } else {
                     if let repr = copy?.remove(at: 0) {
-                        print((repr.1), terminator: "")
+                        print(" \(repr.1) ", terminator: "")
                     } else {
                         print(" ", terminator: "")
                     }
                 }
             }
             print("|")
-        print("|   |    |    |    |    |")
+            print("|   |   |   |")
         }
-        print("-------------------------")
+        print("-------------")
     }
     
     func display() {
-    
-    for row in board.rows() {
-        print("-------")
-        row.forEach{ cell in
-            print("|", terminator: "")
-            if let content = cell.content {
-                let repr = content == .X ? "X" : "O"
-                print(repr, terminator: "")
-            } else {
-                print(" ", terminator: "")
+        
+        for row in board.rows() {
+            print("-------")
+            row.forEach{ cell in
+                print("|", terminator: "")
+                if let content = cell.content {
+                    let repr = content == .X ? "X" : "O"
+                    print(repr, terminator: "")
+                } else {
+                    print(" ", terminator: "")
+                }
             }
+            print("|")
         }
-        print("|")
+        print("-------")
     }
-    print("-------")
 }
     
 /// uses a minimax algorithm to find a reasonable move for the current player, either X or O, of a TicTacToe game
@@ -94,12 +95,14 @@ struct TicTacToeBot {
         
         for move in available {
             copy = game
-            if copy.choose(cell: move) != nil {
+            if let action = copy.choose(cell: move) {
+                copy.perform(action)
                 (moveValue, depthFound) = getValue(of: copy, highest: maxValue, lowest: minValue)
                 if moveValue > maxValue {
                     maxValue = moveValue
+                
                 } else if moveValue < minValue {
-                   minValue = moveValue
+                    minValue = moveValue
                 }
                 scores.append( (move, moveValue, depthFound) )
             }
@@ -115,7 +118,8 @@ struct TicTacToeBot {
             })
         }
          */
-        scores.shuffle()
+        
+        game.display(scores)
         scores.sort { $0.1 > $1.1 }
 
         return game.currentPlayer == .X ? scores.first!.0 : scores.last!.0
@@ -153,8 +157,8 @@ struct TicTacToeBot {
         
         for move in game.availableMoves {
             copy = game
-            if let move = copy.choose(cell: move) {
-                copy.perform(move)
+            if let action = copy.choose(cell: move) {
+                copy.perform(action)
                 (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: maximumGuaranteedValue, lowest: lowest)
                 maximumGuaranteedValue = max(maximumGuaranteedValue, moveValue)
                 if lowest < maximumGuaranteedValue {
@@ -170,8 +174,8 @@ struct TicTacToeBot {
   
         for move in game.availableMoves {
             copy = game
-            if let move = copy.choose(cell: move) {
-                copy.perform(move)
+            if let action = copy.choose(cell: move) {
+                copy.perform(action)
                 (moveValue, depthFound) = getValue(of: copy, depth: depth+1, highest: highest, lowest: minimumGuaranteedValue)
                 minimumGuaranteedValue = min(minimumGuaranteedValue, moveValue)
                 if highest > minimumGuaranteedValue {

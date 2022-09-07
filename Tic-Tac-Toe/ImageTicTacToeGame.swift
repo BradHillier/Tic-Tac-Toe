@@ -16,8 +16,8 @@ class ImageTicTacToeGame: ObservableObject {
     private var bot: TicTacToeBot
     
     init() {
-        game = TicTacToe(size: 3, condition: 3)
-        bot = TicTacToeBot(MaxDepth: 7)
+        game = TicTacToe(size: 15, condition: 5)
+        bot = TicTacToeBot(MaxDepth: 4)
     }
     
     var size: Int { return game.board.size }
@@ -25,7 +25,13 @@ class ImageTicTacToeGame: ObservableObject {
     var isTerminal: Bool { return game.isTerminal() }
     var winner: TicTacToe.Player? { return game.winner }
     var currentPlayer: TicTacToe.Player? { return game.currentPlayer }
-    let inMultiplayerMode = false // this should be on the model
+    let inMultiplayerMode = true // this should be on the model
+    
+    var menu: Bool { game.onMenu }
+    
+    func playToggle() {
+        game.onMenu = !menu
+    }
     
     func choose(_ cell: TicTacToe.Board.Cell) {
         if let action = game.choose(cell: cell) {
@@ -87,6 +93,10 @@ class ImageTicTacToeGame: ObservableObject {
             }
         }
         return nil
+    }
+    
+    func newBoard(size: Int) {
+        self.game = TicTacToe(size: size, condition: size > 3 ? 5 : 3)
     }
     
     func aiMove() {
